@@ -36,3 +36,17 @@
     transform: rotate(360deg);
   }
 }
+
+.home-bg {
+  background-image: url('/home-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+}
+
+.main-bg {
+  background-image: url('/main-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+}
