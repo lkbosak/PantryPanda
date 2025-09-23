@@ -4,6 +4,7 @@ import Home from './Home';
 import Pantry from './Pantry';
 import Recipes from './Recipes';
 import Login from './Login';
+import SignUp from './SignUp';
 import './App.css';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Route path="/pantry" element={<Pantry />} />
         <Route path="/recipes" element={<Recipes />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
       </Routes>
     </BrowserRouter>
   );

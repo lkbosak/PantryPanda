@@ -1,25 +1,24 @@
-
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-const Login = () => {
+const SignUp = () => {
     const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] =useState('');
 
     const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Handle login logic here
-        if (!email || !password) {
-            setError('Please enter both email and password.');
-            return;
-        }
-        setError('');
-        //CONNECT TO BACKEND FOR AUTHENTICATION
-        alert('Login submitted');
-    };
-
+            e.preventDefault();
+            // Handle login logic here
+            if (!email || !username || !password) {
+                setError('Please fill out all fields.');
+                return;
+            }
+            setError('');
+            //CONNECT TO BACKEND FOR AUTHENTICATION
+            alert('Signup submitted');
+        };
+        
     return (
-        <div
+         <div
             style={{
                 backgroundImage: "url('/home-bg.jpg')",
                 backgroundSize: 'cover',
@@ -30,7 +29,7 @@ const Login = () => {
                 alignItems: 'center',
             }}
         >
-            <h1 style={{color: 'white'}}>Login or create an account. </h1>
+            <h1 style={{color: 'white'}}>Create an account. </h1>
             <form
                 onSubmit={handleSubmit}
                 style={{
@@ -42,7 +41,7 @@ const Login = () => {
                     minWidth: '300px',
                 }}
         >
-            <h2>Login</h2>
+            <h2>Sign Up for Pantry Panda</h2>
             {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
              <div style={{ marginBottom: '1rem' }}>
                     <label htmlFor="email">Email:</label>
@@ -54,6 +53,19 @@ const Login = () => {
                         style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
                         required
                     />
+                
+                </div>
+                <div style={{ marginBottom: '1rem' }}>
+                    <label htmlFor="username">Username:</label>
+                    <input
+                        type="text"
+                        id="username"
+                        value={username}
+                        onChange={e => setUsername(e.target.value)}
+                        style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
+                        required
+                    />
+                
                 </div>
                 <div style={{ marginBottom: '1rem' }}>
                     <label htmlFor="password">Password:</label>
@@ -67,14 +79,11 @@ const Login = () => {
                     />
                 </div>
             <button type="submit" style={{ width: '100%', padding: '0.75rem', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>
-                    Login
+                    Signup
             </button>
-           <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-                    <span>Don't have an account? <Link to="/signup">Sign up</Link></span>
-                </div>
             </form>
         </div>
     );
 };
 
-export default Login;
+export default SignUp;
