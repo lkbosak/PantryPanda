@@ -1,15 +1,57 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
+
+const clearButtonStyle = {
+  width: '100%',
+  height: '160px',
+  fontSize: '1.3rem',
+  borderRadius: '16px',
+  background: 'rgba(255,255,255,0.7)',
+  color: '#333',
+  border: '2px solid #ddd',
+  fontWeight: 'bold',
+  cursor: 'pointer',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+  transition: 'background 0.2s, box-shadow 0.2s'
+};
+
 const Pantry = () => (
     <div 
         style={{
                 backgroundImage: "url('/main-bg.jpg')",
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
-                minHeight: '100vh'
+                minHeight: '100vh',
+                padding: '2rem',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '1.5rem'
         }}
     >
-        <h1>Welcome to your pantry.</h1>
+        <h1>Your Pantry</h1>
+        <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: '1fr 1fr', 
+            gap: '1.5rem', 
+            width: '100%', 
+            maxWidth: '700px', 
+            margin: '0 auto'
+        }}>
+            <Link to="/fridge" style={{ textDecoration: 'none' }}>
+                <button style={clearButtonStyle}>Fridge</button>
+            </Link>
+            <Link to="/freezer" style={{ textDecoration: 'none' }}>
+                <button style={clearButtonStyle}>Freezer</button>
+            </Link>
+            <Link to="/spicerack" style={{ textDecoration: 'none' }}>
+                <button style={clearButtonStyle}>Spice Rack</button>
+            </Link>
+            <Link to="/drygoods" style={{ textDecoration: 'none' }}>
+                <button style={clearButtonStyle}>Dry Goods</button>
+            </Link>
+        </div>
     </div>
 );
 export default Pantry;

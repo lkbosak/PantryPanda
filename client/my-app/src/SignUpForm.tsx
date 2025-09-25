@@ -3,6 +3,7 @@ const SignUp = () => {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] =useState('');
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -10,6 +11,20 @@ const SignUp = () => {
             // Handle login logic here
             if (!email || !username || !password) {
                 setError('Please fill out all fields.');
+                return;
+            }
+            const emailRegex = /^[^@]+@[^@]+\.com$/;
+            if (!emailRegex.test(email)) {
+              setError('Please enter a valid email address');
+              return;
+            }
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            if (!passwordRegex.test(password)) {
+              setError('Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.');
+              return;
+            }
+            if (password !== confirmPassword) {
+                setError('Passwords do not match.');
                 return;
             }
             setError('');
@@ -78,8 +93,19 @@ const SignUp = () => {
                         required
                     />
                 </div>
+                <div style={{ marginBottom: '1rem' }}>
+                    <label htmlFor="confirmPassword">Confirm Password:</label>
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        value={confirmPassword}
+                        onChange={e => setConfirmPassword(e.target.value)}
+                        style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
+                        required
+                    />
+                </div>
             <button type="submit" style={{ width: '100%', padding: '0.75rem', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>
-                    Signup
+                    Sign up
             </button>
             </form>
         </div>
