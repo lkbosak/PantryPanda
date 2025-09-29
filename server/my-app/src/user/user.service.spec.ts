@@ -4,10 +4,18 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import { async } from 'rxjs';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 describe('UserService', () => {
   let service: UserService;
-  let repo: Repository<User>;
+  let repo: jest.Mocked<Repository<User>>;
+  const mockUser: CreateUserDto = {
+      username: 'username',
+      email: 'email@gmail.com',
+      password: 'password',
+      accountCreated: new Date()
+  }
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -16,16 +24,17 @@ describe('UserService', () => {
         {
           provide: getRepositoryToken(User),
           useValue: {
-            save: jest.fn().mockResolvedValue({ user_id: 1, username: 'username' }),
-            find: jest.fn().mockResolvedValue([{ user_id: 1, username: 'username' }]),
-            findOneBy: jest.fn().mockResolvedValue({ user_id: 1, username: 'username' }),
+            save: jest.fn().mockReturnValue(mockUser),
+            findOneBy: jest.fn().mockReturnValue(mockUser),
+            update: jest.fn().mockReturnValue(mockUser),
+            delete: jest.fn().mockReturnValue(mockUser),
           },
         },
       ],
     }).compile();
 
     service = module.get<UserService>(UserService);
-    repo = module.get<Repository<User>>(getRepositoryToken(User));
+    repo = module.get(getRepositoryToken(User));
   });
 
 
@@ -37,32 +46,32 @@ describe('UserService', () => {
   it('should create a new user', async () => {
     const dto = { username: 'username', password: 'password', email: 'email@gmail.com', accountCreated: new Date() };
     const result = await service.createUser(dto);
-    expect(result).toEqual({ user_id: 1, username: 'username' });
+    expect(result).toEqual(mockUser);
     expect(repo.save).toHaveBeenCalledWith(dto);
   });
 
   //findoneby
   it('should find a user', async () => {
     const result = await service.findOne(1);
-    expect(result).toEqual({ user_id: 1, username: 'username' });
-    expect(repo.findOneBy).toHaveBeenCalledWith({ user_id: 1 });
+    expect(result).toEqual(mockUser);
+    expect(repo.findOneBy).toHaveBeenCalledWith({user_id: 1 });
   });
 
   //update
   it('should update a user', async () =>{
-      const dto = { username: 'newusername'};
+      repo.update.mockResolvedValue({affected: 1} as any)
+      repo.findOneBy.mockResolvedValue(mockUser as any)
+      const dto = {username: 'newusername'}
       const result = await service.updateUser(1, dto);
-      expect(result).toEqual({ user_id: 1, username: 'newusername'});
-      expect(repo.update).toHaveBeenCalledWith(dto);
+      expect(result).toEqual(mockUser);
+      expect(repo.update).toHaveBeenCalledWith(1, dto);
+      expect(repo.findOneBy).toHaveBeenCalledWith({ user_id: 1 });
   });
   //remove
   it('should remove a user', async() => {
-      await service.remove(1);
-      const result = service.findOne(1);
+      const result = await service.remove(1);
       expect(result).toBeNull();
-      expect(repo.remove).toHaveBeenCalledWith(1);
-
-
+      expect(repo.delete).toHaveBeenCalledWith(1);
   });
 
 });
