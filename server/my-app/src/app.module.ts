@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { User } from './user/user.entity';
+import { DbHealthService } from './db-health.service';
 //dotenv??
 
 @Module({
@@ -12,15 +13,15 @@ import { User } from './user/user.entity';
           type: 'mysql',
           host: '10.111.16.231', 
           port: 3306, 
-          username: 'root', 
-          password: 'ab12cd34', 
+          username: 'appuser', 
+          password: 'pantry1234', 
           database: 'pantry', 
           entities: [User], //add entities?
-          synchronize: true,
+          synchronize: false,
       }),
       UserModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, DbHealthService],
 })
 export class AppModule {}
