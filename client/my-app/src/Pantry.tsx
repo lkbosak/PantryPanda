@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const clearButtonStyle = {
   width: '100%',
-  height: '160px',
+  height: '180px',
   fontSize: '1.3rem',
   borderRadius: '16px',
   background: 'rgba(255,255,255,0.7)',
@@ -19,18 +19,23 @@ const clearButtonStyle = {
 const Pantry = () => (
     <div 
         style={{
-                backgroundImage: "url('/main-bg.jpg')",
+                backgroundImage: "url('/home-bg.jpg')",
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 minHeight: '100vh',
-                padding: '2rem',
                 display: 'flex',
                 flexDirection: 'column',
+                //justifyContent: 'center',
                 alignItems: 'center',
-                gap: '1.5rem'
-        }}
+                paddingTop: '4rem',
+            }}
     >
-        <h1>Your Pantry</h1>
+        <h1 style={{ 
+            marginBottom: '6rem',
+            color: 'white' 
+            }}>
+                Your Pantry
+        </h1>
         <div style={{ 
             display: 'grid', 
             gridTemplateColumns: '1fr 1fr', 
@@ -39,16 +44,16 @@ const Pantry = () => (
             maxWidth: '700px', 
             margin: '0 auto'
         }}>
-            <Link to="/fridge" style={{ textDecoration: 'none' }}>
+            <Link to="/fridge">
                 <button style={clearButtonStyle}>Fridge</button>
             </Link>
-            <Link to="/freezer" style={{ textDecoration: 'none' }}>
+            <Link to="/freezer">
                 <button style={clearButtonStyle}>Freezer</button>
             </Link>
-            <Link to="/spicerack" style={{ textDecoration: 'none' }}>
+            <Link to="/spicerack">
                 <button style={clearButtonStyle}>Spice Rack</button>
             </Link>
-            <Link to="/drygoods" style={{ textDecoration: 'none' }}>
+            <Link to="/drygoods">
                 <button style={clearButtonStyle}>Dry Goods</button>
             </Link>
         </div>
