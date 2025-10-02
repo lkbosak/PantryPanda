@@ -1,10 +1,16 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-const Login = () => {
+import { useNavigate, Link } from 'react-router-dom';
+
+type LoginProps = {
+    onLogin: () => void;
+};
+
+const Login: React.FC<LoginProps> = ({ onLogin }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] =useState('');
+    const navigate = useNavigate(); 
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -13,9 +19,26 @@ const Login = () => {
             setError('Please enter both email and password.');
             return;
         }
-        setError('');
-        //CONNECT TO BACKEND FOR AUTHENTICATION
-        alert('Login submitted');
+        const stored = localStorage.getItem('mockUser');
+        if (stored) {
+            const { email: storedEmail, username: storedUser, password: storedPassword } = JSON.parse(stored);
+            if (
+                (email === storedEmail || email === storedUser) &&
+                password === storedPassword
+            ) {
+                setError('');
+                if (onLogin) onLogin();
+                alert('Login successful! Redirecting to pantry...');
+                localStorage.setItem('mockUserLoggedIn', stored);
+                navigate('/pantry');
+            } else {
+                setError('Email or password is incorrect.');
+                return;
+            }
+        }else {
+            setError('No user found. Please sign up first.');
+            return;
+        }
     };
 
     return (
@@ -45,9 +68,9 @@ const Login = () => {
             <h2>Login</h2>
             {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
              <div style={{ marginBottom: '1rem' }}>
-                    <label htmlFor="email">Email:</label>
+                    <label>Email or Username:</label>
                     <input
-                        type="email"
+                        type="text"
                         id="email"
                         value={email}
                         onChange={e => setEmail(e.target.value)}

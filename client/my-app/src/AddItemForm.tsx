@@ -8,6 +8,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
   const [name, setName] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [category, setCategory] = useState('Fridge');
+  const [barcode, setBarcode] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -17,7 +18,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
       return;
     }
     setError('');
-    onAdd({ name, quantity, category });
+    onAdd({ name, quantity,category });
     setName('');
     setQuantity(1);
     setCategory('Fridge');
@@ -33,6 +34,15 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
           type="text"
           value={name}
           onChange={e => setName(e.target.value)}
+          style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
+        />
+      </label>
+      <label>
+      Barcode:
+        <input
+          type="text"
+          value={barcode}
+          onChange={e => setBarcode(e.target.value)}
           style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
         />
       </label>

@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 const SignUp = () => {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] =useState('');
+    const navigate = useNavigate();
 
     const handleSubmit = (e: React.FormEvent) => {
             e.preventDefault();
@@ -13,7 +16,7 @@ const SignUp = () => {
                 setError('Please fill out all fields.');
                 return;
             }
-            const emailRegex = /^[^@]+@[^@]+\.com$/;
+                const emailRegex = /^[^@]+@[^@]+\.[a-zA-Z]{2,}$/;
             if (!emailRegex.test(email)) {
               setError('Please enter a valid email address');
               return;
@@ -29,7 +32,9 @@ const SignUp = () => {
             }
             setError('');
             //CONNECT TO BACKEND FOR AUTHENTICATION
-            alert('Signup submitted');
+            alert('Signup submitted... redirecting to login');
+            localStorage.setItem('mockUser', JSON.stringify({ username, password }));
+            navigate('/login');
         };
         
     return (
