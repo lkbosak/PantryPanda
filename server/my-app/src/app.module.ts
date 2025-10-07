@@ -5,6 +5,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { User } from './user/user.entity';
 import { DbHealthService } from './db-health.service';
+import { ProductModule } from './product/product.module';
+import { UserInventoryModule } from './user-inventory/user-inventory.module';
+import { GroceryListModule } from './grocery-list/grocery-list.module';
 //dotenv??
 
 @Module({
@@ -20,6 +23,9 @@ import { DbHealthService } from './db-health.service';
           synchronize: false,
       }),
       UserModule,
+      ProductModule,
+      UserInventoryModule,
+      GroceryListModule,
   ],
   controllers: [AppController],
   providers: [AppService, DbHealthService],

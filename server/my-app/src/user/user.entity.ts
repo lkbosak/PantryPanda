@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { UserInventory } from 'src/user-inventory/entities/user-inventory.entity';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 @Entity('Users')
 export class User {
@@ -16,5 +17,8 @@ export class User {
 
   @Column({ name: 'account_created' })
   accountCreated: Date;
+
+  @OneToMany(() => UserInventory, (inventory) => inventory.user)
+  inventoryItems: UserInventory[];
 }
 
