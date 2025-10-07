@@ -4,8 +4,8 @@ import Home from './Home';
 import Pantry from './Pantry';
 import Recipes from './Recipes';
 import Login from './Login';
-import SignUp from './SignUpForm';
 import UserSettings from './UserSettings';
+import SignUp from './SignUpForm';
 import Fridge from './Fridge';
 import Freezer from './Freezer';
 import SpiceRack from './SpiceRack';
@@ -32,37 +32,21 @@ function App() {
 
   return (
     <BrowserRouter>
-      <PantryProvider>
-        <nav style={{ marginBottom: '2rem' }}>
-          <Link to="/">Home</Link>
-          {isLoggedIn ? (
-            <>
-              {' | '}<Link to="/pantry">Pantry</Link>
-              {' | '}<Link to="/settings">User Settings</Link>
-              {' | '}<button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#007bff', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>Logout</button>
-            </>
-          ) : (
-            <>
-              {' | '}<Link to="/login">Login</Link>
-              {' | '}<Link to="/signup">Sign Up</Link>
-            </>
-          )}
-        </nav>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/pantry" element={<Pantry />} />
-          <Route path="/recipes" element={<Recipes />} />
-          <Route path="/login" element={<Login onLogin={() => setIsLoggedIn(true)} />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/settings" element={<UserSettings />} />
-          <Route path="/fridge" element={<Fridge />} />
-          <Route path="/freezer" element={<Freezer />} />
-          <Route path="/spicerack" element={<SpiceRack />} />
-          <Route path="/drygoods" element={<DryGoods />} />
-          <Route path="/addItem" element={<AddItemPage />} /> 
-          <Route path="/removeItem" element={<RemoveItemForm onRemove={itemId => console.log(itemId)} />} />
-        </Routes>
-      </PantryProvider>
+      <nav>
+        <Link to="/">Home</Link> | <Link to="/pantry">Pantry</Link> | <Link to="/recipes">Recipes</Link> | <Link to="/login">Login</Link>| <Link to="/settings">User Settings</Link>| 
+      </nav>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/pantry" element={<Pantry />} />
+        <Route path="/recipes" element={<Recipes />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
+      <Route path="/settings" element={<UserSettings />} />
+        <Route path="/fridge" element={<Fridge />} />
+        <Route path="/freezer" element={<Freezer />} />
+        <Route path="/spicerack" element={<SpiceRack />} />
+        <Route path="/drygoods" element={<DryGoods />} />
+      </Routes>
     </BrowserRouter>
   );
 }
