@@ -23,7 +23,18 @@ export const PantryProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   };
   const removeItem = (identifier: {name?: string; barcode?: string}) => {
-    setPantryItems(prev => prev.filter(item => item.name !== identifier.name && item.barcode !== identifier.barcode));
+    setPantryItems(prev => prev.filter(item => {
+      // If name is provided, remove items with that name
+      if (identifier.name) {
+        return item.name !== identifier.name;
+      }
+      // If barcode is provided, remove items with that barcode
+      if (identifier.barcode) {
+        return item.barcode !== identifier.barcode;
+      }
+      // If neither is provided, keep the item (should not happen)
+      return true;
+    }));
   };
 
   return (

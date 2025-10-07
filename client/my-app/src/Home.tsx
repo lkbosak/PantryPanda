@@ -9,6 +9,7 @@ const Home = () => (
         }}
     >
         <h1>Welcome to Pantry Panda!</h1>
+        <p>Your personal pantry management app.</p>
     </div>
 );
 export default Home;

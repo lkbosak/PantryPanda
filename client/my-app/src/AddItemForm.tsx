@@ -21,7 +21,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
     onAdd({ name, quantity,category });
     setName('');
     setQuantity(1);
-    setCategory('Fridge');
+    setCategory('fridge');
   };
 
   return (

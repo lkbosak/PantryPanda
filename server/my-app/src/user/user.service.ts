@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @Injectable()
 export class UserService {
@@ -35,4 +36,14 @@ export class UserService {
         }
         return null;
     }
-}
+    async login(loginUserDto: LoginUserDto): Promise<User | null> {
+        const { username, email, password } = loginUserDto;
+        // Find user by username or email
+        const user = await this.usersRepository.findOneBy(
+            username ? { username } : { email }
+        );
+        if (user && user.password === password) {
+        return user;
+    }
+  return null;
+}}

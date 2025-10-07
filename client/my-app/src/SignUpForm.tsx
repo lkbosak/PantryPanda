@@ -8,8 +8,7 @@ const SignUp = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] =useState('');
     const navigate = useNavigate();
-
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
             e.preventDefault();
             // Handle login logic here
             if (!email || !username || !password) {
@@ -32,9 +31,21 @@ const SignUp = () => {
             }
             setError('');
             //CONNECT TO BACKEND FOR AUTHENTICATION
-            alert('Signup submitted... redirecting to login');
-            localStorage.setItem('mockUser', JSON.stringify({ username, password }));
-            navigate('/login');
+            try {
+                const response = await fetch('http://localhost:3001/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, username, password }),
+                });
+                if (response.ok) {
+                    alert('Signup successful! Redirecting to login...');
+                    navigate('/login');
+                } else {
+                    setError('Signup failed. Please try again.');
+                }
+            } catch (error) {
+                setError('An error occurred. Please try again later.');
+            }
         };
         
     return (

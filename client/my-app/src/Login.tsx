@@ -8,18 +8,40 @@ type LoginProps = {
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
     const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
+    const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] =useState('');
     const navigate = useNavigate(); 
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         // Handle login logic here
-        if (!email || !password) {
-            setError('Please enter both email and password.');
+        if (!identifier || !password) {
+            setError('Please enter both email/username and password.');
             return;
         }
-        const stored = localStorage.getItem('mockUser');
+        try{
+            const response = await fetch('http://localhost:3001/users/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email: identifier, username: identifier, password }),
+            });
+            const data = await response.json();
+            if (response.ok && data) {
+                setError('');
+                if (onLogin) onLogin();
+                alert('Login successful! Redirecting to pantry...');
+                // Store user info or token if returned by backend
+                localStorage.setItem('mockUserLoggedIn', JSON.stringify(data));
+                navigate('/pantry');
+            } else {
+                setError("Email or password is incorrect.");
+            }
+        } catch (error) {
+            setError('An error occurred. Please try again later.');
+        }
+        /* const stored = localStorage.getItem('mockUser');
         if (stored) {
             const { email: storedEmail, username: storedUser, password: storedPassword } = JSON.parse(stored);
             if (
@@ -38,7 +60,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         }else {
             setError('No user found. Please sign up first.');
             return;
-        }
+        } */
     };
 
     return (
@@ -71,9 +93,9 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     <label>Email or Username:</label>
                     <input
                         type="text"
-                        id="email"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
+                        id="identifier"
+                        value={identifier}
+                        onChange={e => setIdentifier(e.target.value)}
                         style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
                         required
                     />
