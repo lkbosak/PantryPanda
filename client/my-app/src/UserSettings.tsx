@@ -53,6 +53,25 @@ const contentStyle: React.CSSProperties = {
 
 const UserSettings = () => {
   const [openTab, setOpenTab] = useState<'profile' | 'notifications' | null>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [redirect, setRedirect] = useState(false);
+  React.useEffect(() => {
+    if (redirect) {
+      window.location.replace('/');
+    }
+  }, [redirect]);
+  const handleDelete = () => {
+    setShowConfirm(true);
+  };
+  const confirmDelete = () => {
+    localStorage.removeItem('mockUser');
+    localStorage.removeItem('mockUserLoggedIn');
+    setShowConfirm(false);
+    setRedirect(true);
+  };
+  const cancelDelete = () => {
+    setShowConfirm(false);
+  };
   return (
     <div
       style={{
@@ -142,9 +161,39 @@ const UserSettings = () => {
               boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
               transition: 'background 0.2s',
             }}
+            onClick={handleDelete}
           >
             Delete Account
           </button>
+          {showConfirm && (
+            <div style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100vh',
+              background: 'rgba(0,0,0,0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 9999,
+            }}>
+              <div style={{
+                background: 'white',
+                borderRadius: '12px',
+                padding: '32px',
+                boxShadow: '0 2px 16px rgba(0,0,0,0.18)',
+                textAlign: 'center',
+                minWidth: '320px',
+              }}>
+                <div style={{fontSize: '1.2rem', color: '#d32f2f', fontWeight: 700, marginBottom: '18px'}}>
+                  Are you sure? Deleting your account is <span style={{textDecoration: 'underline'}}>permanent</span>.
+                </div>
+                <button onClick={confirmDelete} style={{marginRight: '18px', padding: '10px 24px', background: '#d32f2f', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 700, cursor: 'pointer'}}>Yes, Delete</button>
+                <button onClick={cancelDelete} style={{padding: '10px 24px', background: '#eee', color: '#222', border: 'none', borderRadius: '6px', fontWeight: 500, cursor: 'pointer'}}>Cancel</button>
+              </div>
+            </div>
+          )}
         </div>
       </aside>
       <main style={contentStyle}>
