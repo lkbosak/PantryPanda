@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>UPC Barcode Scanner</title>
+</head>
+
+<body>
+    <h1>UPC Barcode Scanner</h1>
+
+    <div id="test-area-qr-code-webcam">
+        <video style="width: 400px; height: auto;" autoplay muted></video>
+    </div>
+
+    <div id="result">Result will appear here...</div>
+
+    <button id="start-scan">Start Scan</button>
+    <button id="stop-scan">Stop Scan</button>
+
+    <script type="module">
+        // Import browser-specific classes from the browser package
+        import { BrowserMultiFormatReader, BrowserCodeReader } from 'https://unpkg.com/@zxing/browser@0.1.4?module';
+
+        // Import core classes and enums from the core library package
+        import { BarcodeFormat, DecodeHintType } from 'https://unpkg.com/@zxing/library@0.20.0?module';
+
+        // Configuration - can be overridden by environment or deployment
+        const API_BASE_URL = window.location.protocol + '//' + window.location.hostname + ':3000';
+        
+        let activeControls = null;
+
+        async function startScanner() {
+            // Stop any existing scan session before starting a new one
+            if (activeControls) {
+                try { activeControls.stop(); } catch (e) { console.error("Error stopping previous scan:", e); }
+                activeControls = null;
+            }
+
+            // Restrict to UPC barcodes only
+            const hints = new Map();
+            hints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.UPC_A, BarcodeFormat.UPC_E]);
+            const codeReader = new BrowserMultiFormatReader(hints);
+
+            const devices = await BrowserCodeReader.listVideoInputDevices();
+            if (devices.length === 0) {
+                document.getElementById('result').textContent = 'Error: No video input devices found.';
+                throw new Error('No video input devices found');
+            }
+
+            const selectedDeviceId = devices[0].deviceId;
+            const previewElem = document.querySelector('#test-area-qr-code-webcam > video');
+            if (!previewElem) {
+                document.getElementById('result').textContent = 'Error: Video element not found.';
+                throw new Error('Video element not found');
+            }
+
+            console.log(`Started continuous decode from camera with id ${selectedDeviceId}`);
+
+            const controls = await codeReader.decodeFromVideoDevice(
+                selectedDeviceId,
+                previewElem,
+                (result, error, controls) => {
+                     if (result) {
+                         console.log(result);
+                         document.getElementById('result').textContent = `Result: ${result.getText()}`;
+                         
+                         // Make API call using fetch (browser API)
+                         fetch(`https://trackapi.nutritionix.com/v2/search/item/?upc=${result.getText()}`, {
+                             method: 'GET',
+                             headers: {
+                                 'Content-Type': 'application/x-www-form-urlencoded',
+                                 'x-app-id': '395535ef',
+                                 'x-app-key': 'df0b14dcc38d529aaf9a70effd90189f'
+                             }
+                         })
+                         .then(response => response.json())
+                        .then(data => {
+                            console.log('Nutritionix API response:', data);
+                            const upc = result.getText();
+                            const brandName = data.foods?.[0]?.brand_name || 'Unknown';
+                            const foodName = data.foods?.[0]?.food_name || 'Unknown';
+
+                            // Update UI
+                            document.getElementById('result').textContent = `Brand: ${brandName} ${foodName} UPC:${upc}`;
+
+                            // Expose captured values so they can be sent to your DB later
+                            window.scannedFood = { upc, brandName, foodName };
+
+                            // Send to backend to save in MySQL
+                            fetch(`${API_BASE_URL}/api/save-scan`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ upc, brandName, foodName })
+                            }) 
+                        })
+                         .catch(error => {
+                             console.error('API Error:', error);
+                             document.getElementById('result').textContent = `UPC: ${result.getText()} (API call failed)`;
+                         });
+                         
+                         controls.stop();
+                         activeControls = null;
+                     }
+                    if (error && error.name !== 'NotFoundException') {
+                        console.error(error);
+                        document.getElementById('result').textContent = `Error: ${error.message}`;
+                    }
+                }
+            );
+
+            activeControls = controls;
+        }
+
+        document.getElementById('start-scan').addEventListener('click', () => {
+            startScanner().catch(error => {
+                console.error("Failed to start scanner:", error);
+                document.getElementById('result').textContent = `Error: ${error.message}`;
+            });
+        });
+
+        document.getElementById('stop-scan').addEventListener('click', () => {
+            if (activeControls) {
+                try {
+                    activeControls.stop();
+                    console.log("Scanner stopped by user.");
+                } catch (e) {
+                    console.error("Error stopping scan:", e);
+                }
+                activeControls = null;
+            }
+        });
+    </script>
+</body>
+
+
+
+</html>
