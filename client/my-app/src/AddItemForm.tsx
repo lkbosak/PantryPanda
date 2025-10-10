@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 interface AddItemFormProps {
-  onAdd: (item: { name: string; quantity: number; category: string }) => void;
+  onAdd: (item: { name: string; quantity: number; category: string, barcode: string }) => void;
 }
 
 const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
@@ -18,10 +18,10 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
       return;
     }
     setError('');
-    onAdd({ name, quantity,category });
+    onAdd({ name, quantity,category, barcode });
     setName('');
     setQuantity(1);
-    setCategory('fridge');
+    setCategory('Fridge');
   };
 
   return (
