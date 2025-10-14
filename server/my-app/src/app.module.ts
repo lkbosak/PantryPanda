@@ -8,6 +8,9 @@ import { DbHealthService } from './db-health.service';
 import { ProductModule } from './product/product.module';
 import { UserInventoryModule } from './user-inventory/user-inventory.module';
 import { GroceryListModule } from './grocery-list/grocery-list.module';
+import { Product } from './product/entities/product.entity';
+import { UserInventory } from './user-inventory/entities/user-inventory.entity';
+import { GroceryList } from './grocery-list/entities/grocery-list.entity';
 //dotenv??
 
 @Module({
@@ -19,7 +22,7 @@ import { GroceryListModule } from './grocery-list/grocery-list.module';
           username: 'appuser', 
           password: 'pantry1234', 
           database: 'pantry', 
-          entities: [User], //add entities?
+          entities: [User, Product, UserInventory, GroceryList], //add entities?
           synchronize: false,
       }),
       UserModule,

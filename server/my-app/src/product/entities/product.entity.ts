@@ -22,8 +22,6 @@ export class Product{
 
   @OneToMany(() => UserInventory, (inventoryEntries) => inventoryEntries.product)
   inventoryEntries: UserInventory[];
-
-  
   
   }
 
