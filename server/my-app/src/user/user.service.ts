@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -36,14 +36,40 @@ export class UserService {
         }
         return null;
     }
-    async login(loginUserDto: LoginUserDto): Promise<User | null> {
-        const { username, email, password } = loginUserDto;
-        // Find user by username or email
-        const user = await this.usersRepository.findOneBy(
+
+async login(loginUserDto: LoginUserDto): Promise<Partial<User>> {
+    const { username, email, password } = loginUserDto;
+    console.log('Login attempt:', loginUserDto);
+
+    if (!password || (!username && !email)) {
+        console.warn('Missing credentials');
+        throw new UnauthorizedException('Missing credentials');
+    }
+
+    let user;
+    try {
+        user = await this.usersRepository.findOneBy(
             username ? { username } : { email }
         );
-        if (user && user.password === password) {
-        return user;
+        console.log('Found user:', user);
+    } catch (err) {
+        console.error('Database query failed:', err);
+        throw err; // Will return 500
     }
-  return null;
-}}
+
+    if (!user) {
+        console.warn('User not found');
+        throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (user.password !== password) {
+        console.warn('Password mismatch');
+        throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const { password: _pw, ...safeUser } = user as any;
+    console.log('Login successful:', safeUser);
+    return safeUser;
+}
+
+}

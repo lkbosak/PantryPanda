@@ -3,10 +3,12 @@ import { CreateUserInventoryDto } from './dto/create-user-inventory.dto';
 import { UpdateUserInventoryDto } from './dto/update-user-inventory.dto';
 import { Repository } from 'typeorm';
 import { UserInventory } from './entities/user-inventory.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class UserInventoryService {
     constructor(
+        @InjectRepository(UserInventory)
         private readonly inventoryRepository: Repository<UserInventory>,
     ){}
     async create(dto: CreateUserInventoryDto) {

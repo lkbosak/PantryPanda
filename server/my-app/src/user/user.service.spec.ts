@@ -1,11 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { UserInventory } from 'src/user-inventory/entities/user-inventory.entity';
 import { UserService } from './user.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
-import { async } from 'rxjs';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 
 describe('UserService', () => {
   let service: UserService;

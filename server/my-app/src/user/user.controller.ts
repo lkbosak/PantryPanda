@@ -35,6 +35,9 @@ export class UserController {
 
   @Post('login')
   async login(@Body() loginUserDto: LoginUserDto) {
+    // Log the incoming login attempt for debugging (do not log the password)
+    // eslint-disable-next-line no-console
+    console.log('Login attempt:', { username: loginUserDto.username, email: loginUserDto.email });
     return this.userService.login(loginUserDto);
   }
 }
