@@ -1,7 +1,5 @@
 export class CreateUserInventoryDto {
 
-    inventory_id: number;
-
     quantity: number;
 
     unit: string;
@@ -13,4 +11,7 @@ export class CreateUserInventoryDto {
     location: 'pantry' | 'fridge' | 'freezer' | 'spice rack';
 
     qPref: number;
+
+    //foreign keyk
+    product_id: number;
 }

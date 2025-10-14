@@ -12,11 +12,6 @@ export class UserInventoryController {
     return this.userInventoryService.create(createUserInventoryDto);
   }
 
-  @Get()
-  findAll() {
-    return this.userInventoryService.findAll();
-  }
-
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.userInventoryService.findOne(+id);
