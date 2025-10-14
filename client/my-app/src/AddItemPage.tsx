@@ -1,15 +1,11 @@
-import React, { useState } from 'react';
-import { PantryItem, usePantry } from './PantryContext';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import AddItemForm from './AddItemForm';
-import { warn } from 'console';
 
 const AddItemPage: React.FC = () => {
-  const { addItem } = usePantry();
-  const navigate = useNavigate();
-  const [error, setError] = useState('');
+    const navigate = useNavigate();
 
-  const handleAddItem = async (item: { name: string, quantity: number, category: string, barcode: string} ) => {
+    const handleAddItem = async (item: { name: string, quantity: number, category: string, barcode: string, expirationDate?: string, minLevel?: number} ) => {
       
       try{
           const response = await fetch('http://localhost:3001/product', {
@@ -24,10 +20,12 @@ const AddItemPage: React.FC = () => {
               localStorage.setItem('Product', JSON.stringify(data));
               navigate('/pantry');
           } else {
-              setError("Failed to add Product");
+              console.error('Failed to add product, response not ok');
+              alert('Failed to add product');
           }
-      } catch (error) {
-          setError('An error occurred. Please try again later.');
+      } catch (err) {
+          console.error('Failed to add product', err);
+          throw err;
       }
   };
 
