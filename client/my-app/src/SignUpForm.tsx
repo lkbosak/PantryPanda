@@ -20,11 +20,13 @@ const SignUp = () => {
               setError('Please enter a valid email address');
               return;
             }
-            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-            if (!passwordRegex.test(password)) {
-              setError('Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.');
-              return;
-            }
+                        // Require: at least one lowercase, one uppercase, one digit, one special char (non-alphanumeric), min length 8
+                        // Note: previous regex only allowed a small set of special characters like @$!%*?& which rejected others (e.g. #, -, _)
+                        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9\s]).{8,}$/;
+                        if (!passwordRegex.test(password)) {
+                            setError('Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character (no spaces).');
+                            return;
+                        }
             if (password !== confirmPassword) {
                 setError('Passwords do not match.');
                 return;
@@ -44,6 +46,9 @@ const SignUp = () => {
                     setError('Signup failed. Please try again.');
                 }
             } catch (error) {
+                // Log error for debugging; show friendly message to user
+                // eslint-disable-next-line no-console
+                console.error('Signup error:', error);
                 setError('An error occurred. Please try again later.');
             }
         };
@@ -99,15 +104,18 @@ const SignUp = () => {
                 
                 </div>
                 <div style={{ marginBottom: '1rem' }}>
-                    <label htmlFor="password">Password:</label>
-                    <input
-                        type="password"
-                        id="password"
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
-                        required
-                    />
+                        <label htmlFor="password">Password:</label>
+                        <input
+                            type="password"
+                            id="password"
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
+                            required
+                        />
+                        <div style={{ fontSize: '0.85rem', color: '#444', marginTop: '0.25rem' }}>
+                            Password must be at least 8 characters, include uppercase and lowercase letters, a number, and a special character. No spaces.
+                        </div>
                 </div>
                 <div style={{ marginBottom: '1rem' }}>
                     <label htmlFor="confirmPassword">Confirm Password:</label>
