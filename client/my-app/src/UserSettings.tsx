@@ -164,8 +164,22 @@ const UserSettings = () => {
     setShowConfirm(true);
   };
   const confirmDelete = () => {
+    // Remove all user info from localStorage
     localStorage.removeItem('mockUser');
     localStorage.removeItem('mockUserLoggedIn');
+    localStorage.removeItem('usernameChangeCount');
+    localStorage.removeItem('emailChangeCount');
+    // If mockUser object exists, clear its fields for extra safety
+    const user = localStorage.getItem('mockUser');
+    if (user) {
+      try {
+        const userObj = JSON.parse(user);
+        userObj.username = '';
+        userObj.email = '';
+        userObj.password = '';
+        localStorage.setItem('mockUser', JSON.stringify(userObj));
+      } catch {}
+    }
     setShowConfirm(false);
     setRedirect(true);
   };
