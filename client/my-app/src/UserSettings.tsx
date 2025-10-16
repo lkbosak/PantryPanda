@@ -52,9 +52,80 @@ const contentStyle: React.CSSProperties = {
 
 
 const UserSettings = () => {
+  const [emailChangeCount, setEmailChangeCount] = useState(() => {
+    const count = localStorage.getItem('emailChangeCount');
+    return count ? parseInt(count, 10) : 0;
+  });
+  const [email, setEmail] = useState(() => {
+    const user = localStorage.getItem('mockUser');
+    try {
+      return user ? JSON.parse(user).email || '' : '';
+    } catch {
+      return '';
+    }
+  });
+  const [newEmail, setNewEmail] = useState('');
+  const [showEmailConfirm, setShowEmailConfirm] = useState(false);
+  const handleEmailUpdate = () => {
+    if (emailChangeCount >= 3) {
+      setUpdateMsg('You have reached the maximum number of email changes.');
+      return;
+    }
+    if (!newEmail.trim()) {
+      setUpdateMsg('Email cannot be empty.');
+      return;
+    }
+    setShowEmailConfirm(true);
+  };
+
+  const confirmEmailChange = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/users/update-email', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: newEmail }),
+        credentials: 'include',
+      });
+      if (response.ok) {
+        setEmail(newEmail);
+        setUpdateMsg('Email updated successfully!');
+        const newCount = emailChangeCount + 1;
+        setEmailChangeCount(newCount);
+        localStorage.setItem('emailChangeCount', newCount.toString());
+      } else {
+        setUpdateMsg('Failed to update email.');
+      }
+    } catch (err) {
+      setUpdateMsg('Error updating email.');
+    }
+    setShowEmailConfirm(false);
+    setNewEmail('');
+    setTimeout(() => setUpdateMsg(''), 2000);
+  };
+
+  const cancelEmailChange = () => {
+    setShowEmailConfirm(false);
+  };
   const [openTab, setOpenTab] = useState<'profile' | 'notifications' | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [redirect, setRedirect] = useState(false);
+  const [username, setUsername] = useState(() => {
+    const user = localStorage.getItem('mockUser');
+    try {
+      return user ? JSON.parse(user).username || '' : '';
+    } catch {
+      return '';
+    }
+  });
+  const [newUsername, setNewUsername] = useState('');
+  const [updateMsg, setUpdateMsg] = useState('');
+  const [showUpdatedBox, setShowUpdatedBox] = useState(false);
+  const [showEmailBox, setShowEmailBox] = useState(false);
+  const [showUsernameConfirm, setShowUsernameConfirm] = useState(false);
+  const [changeCount, setChangeCount] = useState(() => {
+    const count = localStorage.getItem('usernameChangeCount');
+    return count ? parseInt(count, 10) : 0;
+  });
   React.useEffect(() => {
     if (redirect) {
       window.location.replace('/');
@@ -72,6 +143,47 @@ const UserSettings = () => {
   const cancelDelete = () => {
     setShowConfirm(false);
   };
+  const handleUsernameUpdate = () => {
+    if (changeCount >= 3) {
+      setUpdateMsg('You have reached the maximum number of username changes.');
+      return;
+    }
+    if (!newUsername.trim()) {
+      setUpdateMsg('Username cannot be empty.');
+      return;
+    }
+    setShowUsernameConfirm(true);
+  };
+
+  const confirmUsernameChange = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/users/update-username', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: newUsername }),
+        credentials: 'include',
+      });
+      if (response.ok) {
+        setUsername(newUsername);
+        setUpdateMsg('Username updated successfully!');
+        const newCount = changeCount + 1;
+        setChangeCount(newCount);
+        localStorage.setItem('usernameChangeCount', newCount.toString());
+      } else {
+        setUpdateMsg('Failed to update username.');
+      }
+    } catch (err) {
+      setUpdateMsg('Error updating username.');
+    }
+    setShowUpdatedBox(true);
+    setNewUsername('');
+    setShowUsernameConfirm(false);
+    setTimeout(() => setUpdateMsg(''), 2000);
+  };
+
+  const cancelUsernameChange = () => {
+    setShowUsernameConfirm(false);
+  };
   return (
     <div
       style={{
@@ -86,6 +198,9 @@ const UserSettings = () => {
     >
       <aside style={sidebarStyle}>
         <div style={headerStyle}>⚙️ User Settings</div>
+        <div style={{fontSize: '1.1rem', fontWeight: 600, marginBottom: '16px', textAlign: 'center'}}>
+          Username: <span style={{color: '#1976d2'}}>{username}</span>
+        </div>
         <div style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', flexGrow: 1}}>
           <button
             style={{
@@ -136,9 +251,9 @@ const UserSettings = () => {
             Profile Management
           </button>
           {openTab === 'profile' && (
-            <div style={{ width: '85%', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px' }}>
-              <button style={linkStyle}>Update Name</button>
-              <button style={linkStyle}>Update Email</button>
+            <div style={{ width: '85%', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px', position: 'relative' }}>
+              <button style={linkStyle} onClick={() => { setShowUpdatedBox(!showUpdatedBox); setShowEmailBox(false); }}>Update Username</button>
+              <button style={linkStyle} onClick={() => { setShowEmailBox(!showEmailBox); setShowUpdatedBox(false); }}>Update Email</button>
               <button style={linkStyle}>Change Profile Picture</button>
               <button style={linkStyle}>Reset Password</button>
             </div>
@@ -197,7 +312,170 @@ const UserSettings = () => {
         </div>
       </aside>
       <main style={contentStyle}>
-        {/* <Outlet /> */}
+  {showUpdatedBox && (
+          <div style={{
+            background: '#fff',
+            borderRadius: '12px',
+            boxShadow: '0 2px 16px rgba(0,0,0,0.10)',
+            padding: '40px',
+            minWidth: '400px',
+            textAlign: 'center',
+            marginTop: '48px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '18px',
+          }}>
+            {/* Username update box */}
+            <div style={{fontSize: '1.3rem', fontWeight: 700, marginBottom: '12px'}}>Enter New Username</div>
+            <input
+              type="text"
+              placeholder="Enter new username"
+              value={newUsername}
+              onChange={e => setNewUsername(e.target.value)}
+              style={{
+                padding: '16px',
+                borderRadius: '8px',
+                border: '1.5px solid #bbb',
+                width: '80%',
+                fontSize: '1.2rem',
+                marginBottom: '12px',
+              }}
+              disabled={changeCount >= 3}
+            />
+            <button style={{
+              ...linkStyle,
+              width: '80%',
+              fontSize: '1.2rem',
+              padding: '16px 0',
+            }} onClick={handleUsernameUpdate} disabled={changeCount >= 3}>Update Username</button>
+            {updateMsg && <div style={{color: '#1976d2', fontWeight: 500, marginTop: '4px'}}>{updateMsg}</div>}
+            <div style={{
+              color: '#d32f2f',
+              fontWeight: 600,
+              textDecoration: 'underline',
+              fontSize: '1rem',
+              marginTop: '8px',
+            }}>
+              Username changes left: {3 - changeCount}
+            </div>
+            {showUsernameConfirm && (
+              <div style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100vw',
+                height: '100vh',
+                background: 'rgba(0,0,0,0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 9999,
+              }}>
+                <div style={{
+                  background: 'white',
+                  borderRadius: '12px',
+                  padding: '32px',
+                  boxShadow: '0 2px 16px rgba(0,0,0,0.18)',
+                  textAlign: 'center',
+                  minWidth: '320px',
+                }}>
+                  <div style={{fontSize: '1.2rem', color: '#1976d2', fontWeight: 700, marginBottom: '18px'}}>
+                    Are you sure you want to change your username to <span style={{textDecoration: 'underline'}}>{newUsername}</span>?
+                  </div>
+                  <button onClick={confirmUsernameChange} style={{marginRight: '18px', padding: '10px 24px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 700, cursor: 'pointer'}}>Yes, Change</button>
+                  <button onClick={cancelUsernameChange} style={{padding: '10px 24px', background: '#eee', color: '#222', border: 'none', borderRadius: '6px', fontWeight: 500, cursor: 'pointer'}}>Cancel</button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        {showEmailBox && (
+          <div style={{
+            background: '#fff',
+            borderRadius: '12px',
+            boxShadow: '0 2px 16px rgba(0,0,0,0.10)',
+            padding: '40px',
+            minWidth: '400px',
+            textAlign: 'center',
+            marginTop: '48px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '18px',
+          }}>
+            {/* Email update box */}
+            <div style={{fontSize: '1.3rem', fontWeight: 700, marginBottom: '12px'}}>Enter New Email</div>
+            <input
+              type="email"
+              placeholder="Enter new email"
+              value={newEmail}
+              onChange={e => setNewEmail(e.target.value)}
+              style={{
+                padding: '16px',
+                borderRadius: '8px',
+                border: '1.5px solid #bbb',
+                width: '80%',
+                fontSize: '1.2rem',
+                marginBottom: '12px',
+              }}
+              disabled={emailChangeCount >= 3}
+            />
+            <button style={{
+              ...linkStyle,
+              width: '80%',
+              fontSize: '1.2rem',
+              padding: '16px 0',
+            }} onClick={handleEmailUpdate} disabled={emailChangeCount >= 3}>Update Email</button>
+            <div style={{
+              color: '#1976d2',
+              fontWeight: 600,
+              textDecoration: 'underline',
+              fontSize: '1rem',
+              marginTop: '8px',
+            }}>
+              Current email: {email}
+            </div>
+            <div style={{
+              color: '#d32f2f',
+              fontWeight: 600,
+              textDecoration: 'underline',
+              fontSize: '1rem',
+              marginTop: '8px',
+            }}>
+              Email changes left: {3 - emailChangeCount}
+            </div>
+            {showEmailConfirm && (
+              <div style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100vw',
+                height: '100vh',
+                background: 'rgba(0,0,0,0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 9999,
+              }}>
+                <div style={{
+                  background: 'white',
+                  borderRadius: '12px',
+                  padding: '32px',
+                  boxShadow: '0 2px 16px rgba(0,0,0,0.18)',
+                  textAlign: 'center',
+                  minWidth: '320px',
+                }}>
+                  <div style={{fontSize: '1.2rem', color: '#1976d2', fontWeight: 700, marginBottom: '18px'}}>
+                    Are you sure you want to change your email to <span style={{textDecoration: 'underline'}}>{newEmail}</span>?
+                  </div>
+                  <button onClick={confirmEmailChange} style={{marginRight: '18px', padding: '10px 24px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 700, cursor: 'pointer'}}>Yes, Change</button>
+                  <button onClick={cancelEmailChange} style={{padding: '10px 24px', background: '#eee', color: '#222', border: 'none', borderRadius: '6px', fontWeight: 500, cursor: 'pointer'}}>Cancel</button>
+                </div>
+              </div>
+            )}
+          </div>
+  )}
       </main>
     </div>
   );

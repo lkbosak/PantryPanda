@@ -38,6 +38,9 @@ const SignUp = () => {
                     body: JSON.stringify({ email, username, password }),
                 });
                 if (response.ok) {
+                    // Save username to localStorage for UserSettings default
+                    localStorage.setItem('mockUser', JSON.stringify({ username, email, password }));
+                    localStorage.setItem('usernameChangeCount', '0');
                     alert('Signup successful! Redirecting to login...');
                     navigate('/login');
                 } else {
