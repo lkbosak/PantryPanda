@@ -18,28 +18,59 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         e.preventDefault();
         // Handle login logic here
         if (!identifier || !password) {
-            setError('Please enter both email/username and password.');
+            Error('Please enter both email/username and password.');
             return;
         }
-        try{
-            const response = await fetch('http://localhost:3001/users/login', {
+        try {
+            const response = await fetch('/api/users/login', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ email: identifier, username: identifier, password }),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: identifier, password }),
             });
-            const data = await response.json();
+
+            // Log status and headers for debugging
+            // eslint-disable-next-line no-console
+            console.log('Login response status:', response.status);
+            // eslint-disable-next-line no-console
+            console.log('Login response headers:', Object.fromEntries(response.headers.entries()));
+
+            // Only attempt JSON parse when content-type indicates JSON
+            const contentType = response.headers.get('content-type') || '';
+            let data: any = null;
+            if (contentType.includes('application/json')) {
+                try {
+                    data = await response.json();
+                } catch (err) {
+                    // eslint-disable-next-line no-console
+                    console.error('Failed to parse JSON response for login:', err);
+                }
+            } else {
+                // If not JSON, get text for debugging
+                const text = await response.text();
+                // eslint-disable-next-line no-console
+                console.log('Non-JSON login response body:', text);
+            }
+
             if (response.ok && data) {
                 setError('');
                 if (onLogin) onLogin();
-                alert('Login successful! Redirecting to pantry...');
                 // Store user info or token if returned by backend
                 localStorage.setItem('mockUserLoggedIn', JSON.stringify(data));
                 navigate('/pantry');
+            } else if (response.ok && !data) {
+                // 200 with empty/null body
+                setError('Login failed: invalid credentials.');
+            } else if (response.status === 401) {
+                setError('Invalid credentials.');
+            } else if (response.status >= 400 && response.status < 500) {
+                setError('Login request failed. Please check your input.');
             } else {
-                setError("Email or password is incorrect.");
+                setError('An error occurred. Please try again later.');
             }
         } catch (error) {
-            setError('An error occurred. Please try again later.');
+            // eslint-disable-next-line no-console
+            console.error('Fetch error during login:', error);
+            setError('Network error: unable to reach the server.');
         }
         /* const stored = localStorage.getItem('mockUser');
         if (stored) {
