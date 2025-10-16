@@ -52,6 +52,40 @@ const contentStyle: React.CSSProperties = {
 
 
 const UserSettings = () => {
+  // Reset password modal state
+  const [showResetPasswordBox, setShowResetPasswordBox] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [resetPasswordMsg, setResetPasswordMsg] = useState('');
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+
+  const handleResetPassword = () => {
+    if (!currentPassword || !newPassword || !confirmNewPassword) {
+      setResetPasswordMsg('All fields are required.');
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setResetPasswordMsg('New passwords do not match.');
+      return;
+    }
+    setShowResetConfirm(true);
+  };
+
+  const confirmResetPassword = async () => {
+    // Replace with backend call if needed
+    setResetPasswordMsg('Password updated successfully!');
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmNewPassword('');
+    setShowResetConfirm(false);
+    setTimeout(() => setResetPasswordMsg(''), 3000);
+    setShowResetPasswordBox(false);
+  };
+
+  const cancelResetPassword = () => {
+    setShowResetConfirm(false);
+  };
   const [emailChangeCount, setEmailChangeCount] = useState(() => {
     const count = localStorage.getItem('emailChangeCount');
     return count ? parseInt(count, 10) : 0;
@@ -78,26 +112,21 @@ const UserSettings = () => {
     setShowEmailConfirm(true);
   };
 
-  const confirmEmailChange = async () => {
-    try {
-      const response = await fetch('http://localhost:3001/users/update-email', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: newEmail }),
-        credentials: 'include',
-      });
-      if (response.ok) {
-        setEmail(newEmail);
-        setUpdateMsg('Email updated successfully!');
-        const newCount = emailChangeCount + 1;
-        setEmailChangeCount(newCount);
-        localStorage.setItem('emailChangeCount', newCount.toString());
-      } else {
-        setUpdateMsg('Failed to update email.');
-      }
-    } catch (err) {
-      setUpdateMsg('Error updating email.');
+  const confirmEmailChange = () => {
+    setEmail(newEmail);
+    // Update localStorage mockUser
+    const user = localStorage.getItem('mockUser');
+    if (user) {
+      try {
+        const userObj = JSON.parse(user);
+        userObj.email = newEmail;
+        localStorage.setItem('mockUser', JSON.stringify(userObj));
+      } catch {}
     }
+    const newCount = emailChangeCount + 1;
+    setEmailChangeCount(newCount);
+    localStorage.setItem('emailChangeCount', newCount.toString());
+    setUpdateMsg('Email updated successfully!');
     setShowEmailConfirm(false);
     setNewEmail('');
     setTimeout(() => setUpdateMsg(''), 2000);
@@ -155,26 +184,21 @@ const UserSettings = () => {
     setShowUsernameConfirm(true);
   };
 
-  const confirmUsernameChange = async () => {
-    try {
-      const response = await fetch('http://localhost:3001/users/update-username', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: newUsername }),
-        credentials: 'include',
-      });
-      if (response.ok) {
-        setUsername(newUsername);
-        setUpdateMsg('Username updated successfully!');
-        const newCount = changeCount + 1;
-        setChangeCount(newCount);
-        localStorage.setItem('usernameChangeCount', newCount.toString());
-      } else {
-        setUpdateMsg('Failed to update username.');
-      }
-    } catch (err) {
-      setUpdateMsg('Error updating username.');
+  const confirmUsernameChange = () => {
+    setUsername(newUsername);
+    // Update localStorage mockUser
+    const user = localStorage.getItem('mockUser');
+    if (user) {
+      try {
+        const userObj = JSON.parse(user);
+        userObj.username = newUsername;
+        localStorage.setItem('mockUser', JSON.stringify(userObj));
+      } catch {}
     }
+    const newCount = changeCount + 1;
+    setChangeCount(newCount);
+    localStorage.setItem('usernameChangeCount', newCount.toString());
+    setUpdateMsg('Username updated successfully!');
     setShowUpdatedBox(true);
     setNewUsername('');
     setShowUsernameConfirm(false);
@@ -255,7 +279,124 @@ const UserSettings = () => {
               <button style={linkStyle} onClick={() => { setShowUpdatedBox(!showUpdatedBox); setShowEmailBox(false); }}>Update Username</button>
               <button style={linkStyle} onClick={() => { setShowEmailBox(!showEmailBox); setShowUpdatedBox(false); }}>Update Email</button>
               <button style={linkStyle}>Change Profile Picture</button>
-              <button style={linkStyle}>Reset Password</button>
+              <button style={linkStyle} onClick={() => { setShowResetPasswordBox(true); setShowUpdatedBox(false); setShowEmailBox(false); }}>Reset Password</button>
+      {/* Reset Password Modal */}
+      {showResetPasswordBox && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            background: 'rgba(0,0,0,0.04)',
+          }}
+          onClick={e => {
+            if (e.target === e.currentTarget) setShowResetPasswordBox(false);
+          }}
+        >
+          <div style={{
+            background: '#fff',
+            borderRadius: '12px',
+            boxShadow: '0 2px 16px rgba(0,0,0,0.10)',
+            padding: '40px',
+            minWidth: '400px',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '18px',
+          }}>
+            <div style={{fontSize: '1.3rem', fontWeight: 700, marginBottom: '12px', textAlign: 'center'}}>Reset Password</div>
+            <input
+              type="password"
+              placeholder="Current password"
+              value={currentPassword}
+              onChange={e => setCurrentPassword(e.target.value)}
+              style={{
+                padding: '16px',
+                borderRadius: '8px',
+                border: '1.5px solid #bbb',
+                width: '80%',
+                fontSize: '1.2rem',
+                marginBottom: '12px',
+                textAlign: 'center',
+              }}
+            />
+            <input
+              type="password"
+              placeholder="New password"
+              value={newPassword}
+              onChange={e => setNewPassword(e.target.value)}
+              style={{
+                padding: '16px',
+                borderRadius: '8px',
+                border: '1.5px solid #bbb',
+                width: '80%',
+                fontSize: '1.2rem',
+                marginBottom: '12px',
+                textAlign: 'center',
+              }}
+            />
+            <input
+              type="password"
+              placeholder="Confirm new password"
+              value={confirmNewPassword}
+              onChange={e => setConfirmNewPassword(e.target.value)}
+              style={{
+                padding: '16px',
+                borderRadius: '8px',
+                border: '1.5px solid #bbb',
+                width: '80%',
+                fontSize: '1.2rem',
+                marginBottom: '12px',
+                textAlign: 'center',
+              }}
+            />
+            <button style={{
+              ...linkStyle,
+              width: '80%',
+              fontSize: '1.2rem',
+              padding: '16px 0',
+              textAlign: 'center',
+            }} onClick={handleResetPassword}>Reset Password</button>
+            {resetPasswordMsg && <div style={{color: '#d32f2f', fontWeight: 500, marginTop: '4px', textAlign: 'center'}}>{resetPasswordMsg}</div>}
+            {showResetConfirm && (
+              <div style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100vw',
+                height: '100vh',
+                background: 'rgba(0,0,0,0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 9999,
+              }}>
+                <div style={{
+                  background: 'white',
+                  borderRadius: '12px',
+                  padding: '32px',
+                  boxShadow: '0 2px 16px rgba(0,0,0,0.18)',
+                  textAlign: 'center',
+                  minWidth: '320px',
+                }}>
+                  <div style={{fontSize: '1.2rem', color: '#1976d2', fontWeight: 700, marginBottom: '18px', textAlign: 'center'}}>
+                    Are you sure you want to reset your password?
+                  </div>
+                  <button onClick={confirmResetPassword} style={{marginRight: '18px', padding: '10px 24px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 700, cursor: 'pointer'}}>Yes, Reset</button>
+                  <button onClick={cancelResetPassword} style={{padding: '10px 24px', background: '#eee', color: '#222', border: 'none', borderRadius: '6px', fontWeight: 500, cursor: 'pointer'}}>Cancel</button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
             </div>
           )}
         </div>
