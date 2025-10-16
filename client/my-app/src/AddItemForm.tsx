@@ -6,11 +6,20 @@ interface AddItemFormProps {
 
 const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
   const [name, setName] = useState('');
-  const [quantity, setQuantity] = useState(1);
-  const [category, setCategory] = useState('Fridge');
+  const [quantity, setQuantity] = useState('1');
+  const [category, setCategory] = useState('');
   const [barcode, setBarcode] = useState('');
-  const [expirationDate, setExpirationDate] = useState('');
-  const [minLevel, setMinLevel] = useState(0);
+  // default expiration date two years from now (YYYY-MM-DD)
+  const twoYearsFromNow = () => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() + 2);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+  const [expirationDate, setExpirationDate] = useState(twoYearsFromNow());
+  const [minLevel, setMinLevel] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -19,13 +28,26 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
       setError('Please enter an item name.');
       return;
     }
-    setError('');
-    onAdd({ name, quantity, category, barcode, expirationDate: expirationDate || undefined, minLevel });
+    if (quantity === '' ) {
+      setError('Please enter a quantity greater than 0.');
+      return;
+    }
+    const qtyNum = Number(quantity);
+    if (!Number.isFinite(qtyNum) || qtyNum <= 0) {
+      setError('Quantity must be a number greater than 0.');
+      return;
+    }
+    if (!category) {
+      setError('Please select a destination.');
+      return;
+    }
+    const minLevelNum = minLevel === '' ? undefined : Number(minLevel);
+    onAdd({ name, quantity: qtyNum, category, barcode, expirationDate: expirationDate || undefined, minLevel: minLevelNum });
     setName('');
-    setQuantity(1);
-    setCategory('Fridge');
-    setExpirationDate('');
-    setMinLevel(0);
+    setQuantity('1');
+    setCategory('');
+  setExpirationDate(twoYearsFromNow());
+    setMinLevel('');
   };
 
   return (
@@ -63,13 +85,28 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
         />
       </div>
       <div>
-        <label htmlFor="item-minlevel">Desired minimum level:</label>
+        <label htmlFor="item-minlevel">Desired minimum quantity:</label>
         <input
           id="item-minlevel"
-          type="number"
-          min={0}
+          type="text"
+          inputMode="numeric"
+          pattern="\d*"
           value={minLevel}
-          onChange={e => setMinLevel(Number(e.target.value))}
+          onKeyDown={e => {
+            if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) return;
+            // block anything that's not a digit
+            if (!/^\d$/.test(e.key)) e.preventDefault();
+          }}
+          onPaste={e => {
+            const text = e.clipboardData.getData('text');
+            if (!/^\d*$/.test(text)) {
+              e.preventDefault();
+            }
+          }}
+          onChange={e => {
+            const v = e.target.value;
+            if (/^\d*$/.test(v)) setMinLevel(v);
+          }}
           style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
         />
       </div>
@@ -77,16 +114,30 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
         <label htmlFor="item-quantity">Quantity:</label>
         <input
           id="item-quantity"
-          type="number"
-          min={1}
+          type="text"
+          inputMode="numeric"
+          pattern="\d*"
           value={quantity}
-          onChange={e => setQuantity(Number(e.target.value))}
+          onKeyDown={e => {
+            if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) return;
+            if (!/^\d$/.test(e.key)) e.preventDefault();
+          }}
+          onPaste={e => {
+            const text = e.clipboardData.getData('text');
+            if (!/^\d*$/.test(text)) e.preventDefault();
+          }}
+          onChange={e => {
+            const v = e.target.value;
+            if (v === '' || /^\d+$/.test(v)) setQuantity(v);
+          }}
           style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
+          required
         />
       </div>
       <div>
         <label htmlFor="item-category">Category:</label>
         <select id="item-category" value={category} onChange={e => setCategory(e.target.value)} style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}>
+          <option value="" disabled>-- Select destination --</option>
           <option value="Fridge">Fridge</option>
           <option value="Freezer">Freezer</option>
           <option value="Spice Rack">Spice Rack</option>
