@@ -11,7 +11,24 @@ export class ProductService {
         private productRepository: Repository<Product>,
     ){}
     async create(createProductDto: CreateProductDto) {
-        return await this.productRepository.save(createProductDto);
+        console.log('Enter create with createProductDto', JSON.stringify(createProductDto));
+
+        // Accept several possible shapes from the frontend:
+        // - { productName, barcode_upc, description }
+        // - { name, barcode, description }
+        // - { product_name, barcode_upc }
+        const dto: any = createProductDto as any;
+        const productName = dto.productName ?? dto.name ?? dto.product_name ?? '';
+    const barcode = dto.barcode_upc ?? dto.barcode ?? dto.upc ?? dto.upc_barcode ?? dto.barcodeUpc ?? dto.upcBarcode ?? '';
+        const description = dto.description ?? dto.desc ?? '';
+
+        const product = this.productRepository.create({
+            productName,
+            barcode_upc: barcode,
+            description,
+        } as Partial<Product>);
+
+        return await this.productRepository.save(product);
     }
 
     async findOne(id: number) {

@@ -40,6 +40,7 @@ export class UserService {
 async login(loginUserDto: LoginUserDto): Promise<Partial<User>> {
     const { username, email, password } = loginUserDto;
     console.log('Login attempt:', loginUserDto);
+    console.log('test in login')
 
     if (!password || (!username && !email)) {
         console.warn('Missing credentials');

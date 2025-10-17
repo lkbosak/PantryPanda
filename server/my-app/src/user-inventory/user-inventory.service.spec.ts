@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserInventoryService } from './user-inventory.service';
 import { UserInventory } from './entities/user-inventory.entity';
+import { User } from '../user/user.entity';
+import { Product } from '../product/entities/product.entity';
 
 describe('UserInventoryService', () => {
   let service: UserInventoryService;
@@ -10,7 +12,10 @@ describe('UserInventoryService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserInventoryService,
-        { provide: getRepositoryToken(UserInventory), useValue: {} },
+  { provide: getRepositoryToken(UserInventory), useValue: {} },
+  // mock other repositories if service injects them in alternate code paths
+  { provide: getRepositoryToken(User), useValue: {} },
+  { provide: getRepositoryToken(Product), useValue: {} },
       ],
     }).compile();
 

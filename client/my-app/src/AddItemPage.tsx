@@ -1,38 +1,73 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import AddItemForm from './AddItemForm';
+import {User, Product} from './types'
+
 
 const AddItemPage: React.FC = () => {
     const navigate = useNavigate();
 
-    const handleAddItem = async (item: { name: string, quantity: number, category: string, barcode: string, expirationDate?: string, minLevel?: number} ) => {
-      
-      try{
-          const response = await fetch('http://localhost:3001/product', {
-              method: 'POST',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify(item),
-          });
-          const data = await response.json();
-          if (response.ok && data) {
-              alert('Product added');
-              // Store user info or token if returned by backend
-              localStorage.setItem('Product', JSON.stringify(data));
-              navigate('/pantry');
-          } else {
-              console.error('Failed to add product, response not ok');
-              alert('Failed to add product');
-          }
-      } catch (err) {
-          console.error('Failed to add product', err);
-          throw err;
-      }
-  };
+    const userIdstr = localStorage.getItem('user_id');
+    if(userIdstr == null){
+        throw new Error('user not logged in')
+    }
+    const user_id = Number(userIdstr);
+    console.log("user id " + user_id)
+    const handleAddItem = async (item: { 
+        product_name: string, 
+        quantity: number, 
+        category: string, 
+        upc_barcode: string, 
+        expirationDate?: string, 
+        minLevel?: number} ) => {
+        
+
+        try{
+            const response = await fetch('/api/product', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(item),
+            });
+            console.log(item)
+            const data = await response.json();
+            await fetch('/api/user-inventory', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: user_id,
+                    product_id: data.product_id,
+                    quantity: Number(item.quantity),
+                    unit: 'gallon', 
+                    expiration_date: item.expirationDate ? (item.expirationDate) : null,
+                    date_added: new Date(),
+                    location: item.category, 
+                    qPref: item.minLevel ?? 1,
+                })
+            });
+            try{
+                if (response.ok && data) {
+                    alert('Product added');
+                    // Store user info or token if returned by backend
+                    localStorage.setItem('Product', JSON.stringify(data));
+                    navigate('/pantry');
+                } else {
+                    console.error('Failed to add product, response not ok');
+                    alert('Failed to add product');
+                }
+            }catch(err){
+                console.error(err);
+            }
+        } catch (err) {
+            console.error('Failed to add product', err);
+            throw err;
+        }
+
+    };
 
 
 
 
-  return <AddItemForm onAdd={handleAddItem} />;
+    return <AddItemForm onAdd={handleAddItem} />;
 };
 
 

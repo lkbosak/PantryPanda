@@ -4,12 +4,18 @@ import { UpdateUserInventoryDto } from './dto/update-user-inventory.dto';
 import { Repository } from 'typeorm';
 import { UserInventory } from './entities/user-inventory.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/user/user.entity';
+import { Product } from 'src/product/entities/product.entity';
 
 @Injectable()
 export class UserInventoryService {
     constructor(
         @InjectRepository(UserInventory)
         private readonly inventoryRepository: Repository<UserInventory>,
+        @InjectRepository(User)
+        private readonly userRepository: Repository<User>,
+        @InjectRepository(Product)
+        private readonly productRepository: Repository<Product>,
     ) {}
 
     // Return all inventory entries. Include related user and product for convenience.
@@ -17,35 +23,58 @@ export class UserInventoryService {
         return await this.inventoryRepository.find({ relations: ['user', 'product'] });
     }
 
-    // Create from DTO. Map product relation by id so TypeORM links the relation.
-    async create(dto: CreateUserInventoryDto) {
-        return await this.inventoryRepository.save({
-            quantity: dto.quantity,
-            unit: dto.unit,
-            expiration_date: dto.expiration_date,
-            date_added: dto.date_added,
-            location: dto.location,
-            qPref: dto.qPref,
-            // product relation as partial object with id
-            product: dto.product_id ? { product_id: dto.product_id } as any : undefined,
-        } as Partial<UserInventory>);
+async create(dto: CreateUserInventoryDto) {
+    const user = await this.userRepository.findOneBy({ user_id: dto.user_id });
+    const product = await this.productRepository.findOneBy({ product_id: dto.product_id });
+
+    // Check if an entry for this user/product/location exists
+    let inventory = await this.inventoryRepository.findOne({
+        where: {
+            user: { user_id: dto.user_id },
+            product: { product_id: dto.product_id },
+            location: dto.location
+        },
+        relations: ['user', 'product']
+    });
+
+    if (inventory) {
+        // Update existing quantity / fields
+        inventory.quantity += dto.quantity; 
+        inventory.qPref = dto.qPref;
+        inventory.expiration_date = dto.expiration_date;
+        return this.inventoryRepository.save(inventory);
     }
 
-    async findOne(id: number) {
-        return await this.inventoryRepository.findOneBy({ inventory_id: id });
-    }
+    // Create new entry if it doesn't exist
+    inventory = this.inventoryRepository.create({
+        quantity: Number(dto.quantity),
+        unit: dto.unit,
+        expiration_date: new Date(dto.expiration_date),
+        date_added: new Date(dto.date_added),
+        location: dto.location as 'pantry' | 'fridge' | 'freezer' | 'spice rack',
+        qPref: Number(dto.qPref),
+        user: { user_id: dto.user_id },        // pass only the foreign key
+        product: { product_id: dto.product_id }     });
 
-    async update(id: number, updateUserInventoryDto: UpdateUserInventoryDto) {
-        await this.inventoryRepository.update(id, updateUserInventoryDto);
-        return this.inventoryRepository.findOneBy({ inventory_id: id });
-    }
+        return this.inventoryRepository.save(inventory);
+}
 
-    async remove(id: number) {
-        const result = await this.inventoryRepository.delete(id);
-        if (result.affected === 0) {
-            throw new NotFoundException();
-        }
-        return null;
+
+async findOne(id: number) {
+    return await this.inventoryRepository.findOneBy({ inventory_id: id });
+}
+
+async update(id: number, updateUserInventoryDto: UpdateUserInventoryDto) {
+    await this.inventoryRepository.update(id, updateUserInventoryDto);
+    return this.inventoryRepository.findOneBy({ inventory_id: id });
+}
+
+async remove(id: number) {
+    const result = await this.inventoryRepository.delete(id);
+    if (result.affected === 0) {
+        throw new NotFoundException();
     }
+    return null;
+}
 }
 

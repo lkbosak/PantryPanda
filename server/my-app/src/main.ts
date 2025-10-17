@@ -2,17 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  // Configure CORS explicitly so browser-based requests from the frontend
-  // (for example http://localhost:3000) are allowed when calling the API.
-  const app = await NestFactory.create(AppModule);
-  const corsOptions = {
-    origin: process.env.CORS_ORIGIN ?? ['http://localhost:3000'],
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-    optionsSuccessStatus: 204,
-  } as any;
-  app.enableCors(corsOptions);
+  const app = await NestFactory.create(AppModule, { cors: true });
   const port = Number(process.env.PORT) || 3001;
   const host = process.env.HOST || '0.0.0.0';
   await app.listen(port, host);

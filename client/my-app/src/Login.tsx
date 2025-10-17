@@ -55,7 +55,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 setError('');
                 if (onLogin) onLogin();
                 // Store user info or token if returned by backend
-                localStorage.setItem('mockUserLoggedIn', JSON.stringify(data));
+                localStorage.setItem('user_id', JSON.stringify(data.user_id));
                 navigate('/pantry');
             } else if (response.ok && !data) {
                 // 200 with empty/null body

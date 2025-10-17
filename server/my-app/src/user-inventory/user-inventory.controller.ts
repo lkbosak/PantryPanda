@@ -9,7 +9,13 @@ export class UserInventoryController {
 
   @Post()
   create(@Body() createUserInventoryDto: CreateUserInventoryDto) {
-    return this.userInventoryService.create(createUserInventoryDto);
+    console.log('Entered user-inventory controller', createUserInventoryDto);
+    try {
+      return this.userInventoryService.create(createUserInventoryDto);
+    } catch (err) {
+      console.error('Error in UserInventoryController.create:', err && err.stack ? err.stack : err);
+      throw err;
+    }
   }
 
   @Get(':id')

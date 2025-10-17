@@ -14,4 +14,7 @@ export class CreateUserInventoryDto {
 
     //foreign keyk
     product_id: number;
+
+    //foreign key
+    user_id: number;
 }

@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 
 interface AddItemFormProps {
-  onAdd: (item: { name: string; quantity: number; category: string; barcode: string; expirationDate?: string; minLevel?: number }) => void;
+  onAdd: (item: { product_name: string; quantity: number; category: string; upc_barcode: string; expirationDate?: string; minLevel?: number }) => void;
 }
 
 const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
-  const [name, setName] = useState('');
+  const [product_name, setName] = useState('');
   const [quantity, setQuantity] = useState('1');
   const [category, setCategory] = useState('');
-  const [barcode, setBarcode] = useState('');
+  const [upc_barcode, setBarcode] = useState('');
   // default expiration date two years from now (YYYY-MM-DD)
   const twoYearsFromNow = () => {
     const d = new Date();
@@ -24,7 +24,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name) {
+    if (!product_name) {
       setError('Please enter an item name.');
       return;
     }
@@ -42,7 +42,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
       return;
     }
     const minLevelNum = minLevel === '' ? undefined : Number(minLevel);
-    onAdd({ name, quantity: qtyNum, category, barcode, expirationDate: expirationDate || undefined, minLevel: minLevelNum });
+    onAdd({ product_name, quantity: qtyNum, category, upc_barcode, expirationDate: expirationDate || undefined, minLevel: minLevelNum });
     setName('');
     setQuantity('1');
     setCategory('');
@@ -59,7 +59,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
         <input
           id="item-name"
           type="text"
-          value={name}
+          value={product_name}
           onChange={e => setName(e.target.value)}
           style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
         />
@@ -69,7 +69,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
         <input
           id="item-barcode"
           type="text"
-          value={barcode}
+          value={upc_barcode}
           onChange={e => setBarcode(e.target.value)}
           style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
         />
@@ -138,10 +138,10 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
         <label htmlFor="item-category">Category:</label>
         <select id="item-category" value={category} onChange={e => setCategory(e.target.value)} style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}>
           <option value="" disabled>-- Select destination --</option>
-          <option value="Fridge">Fridge</option>
-          <option value="Freezer">Freezer</option>
-          <option value="Spice Rack">Spice Rack</option>
-          <option value="Dry Goods">Dry Goods</option>
+          <option value="fridge">Fridge</option>
+          <option value="freezer">Freezer</option>
+          <option value="spice rack">Spice Rack</option>
+          <option value="pantry">Dry Goods</option>
         </select>
       </div>
       <button type="submit" style={{ padding: '0.75rem', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>
