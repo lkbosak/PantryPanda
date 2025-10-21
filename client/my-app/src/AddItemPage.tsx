@@ -8,9 +8,9 @@ const AddItemPage: React.FC = () => {
     const navigate = useNavigate();
 
     const userIdstr = localStorage.getItem('user_id');
-    if(userIdstr == null){
-        throw new Error('user not logged in')
-    }
+    // if(userIdstr == null){
+    //     throw new Error('user not logged in')
+    // }
     const user_id = Number(userIdstr);
     console.log("user id " + user_id)
     const handleAddItem = async (item: { 
@@ -63,9 +63,6 @@ const AddItemPage: React.FC = () => {
         }
 
     };
-
-
-
 
     return <AddItemForm onAdd={handleAddItem} />;
 };

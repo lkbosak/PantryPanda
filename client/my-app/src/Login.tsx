@@ -7,8 +7,8 @@ type LoginProps = {
 };
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
-    const [email, setEmail] = useState('');
-    const [username, setUsername] = useState('');
+    //const [email, setEmail] = useState('');
+    //const [username, setUsername] = useState('');
     const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] =useState('');

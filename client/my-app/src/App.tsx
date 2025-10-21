@@ -10,10 +10,9 @@ import Fridge from './Fridge';
 import Freezer from './Freezer';
 import SpiceRack from './SpiceRack';
 import DryGoods from './DryGoods';
-//import AddItemForm from './AddItemForm';
 import AddItemPage from './AddItemPage';
-//import RemoveItemForm from './RemoveItemForm';
 import RemoveItemPage from './RemoveItemPage';
+import BarcodeScanner from './BarcodeScanner';
 
 
 import './App.css';
@@ -41,7 +40,7 @@ function App() {
               <Link to="/">Home</Link>
               {' |'}<Link to="/pantry">Pantry</Link>
               {' | '}<Link to="/settings">User Settings</Link>
-              {' | '}<button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#007bff', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>Logout</button>
+              {' | '}<button onClick={handleLogout} className="nav-link-button">Logout</button>
             </>
           ) : (
             <>
@@ -64,6 +63,7 @@ function App() {
           <Route path="/drygoods" element={<DryGoods />} />
           <Route path="/addItem" element={<AddItemPage />} /> 
           <Route path="/removeItem" element={< RemoveItemPage/>} />
+          <Route path="/scanner" element={<BarcodeScanner onDetected={code => console.log('Detected barcode:', code)} />} />
         </Routes>
       </PantryProvider>
     </BrowserRouter>

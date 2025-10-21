@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import BarcodeScanner from './BarcodeScanner';
 
 interface AddItemFormProps {
   onAdd: (item: { product_name: string; quantity: number; category: string; upc_barcode: string; expirationDate?: string; minLevel?: number }) => void;
@@ -9,6 +10,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
   const [quantity, setQuantity] = useState('1');
   const [category, setCategory] = useState('');
   const [upc_barcode, setBarcode] = useState('');
+  const [showScanner, setShowScanner] = useState(false);
   // default expiration date two years from now (YYYY-MM-DD)
   const twoYearsFromNow = () => {
     const d = new Date();
@@ -73,6 +75,22 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
           onChange={e => setBarcode(e.target.value)}
           style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
         />
+        <div style={{ marginTop: '0.5rem' }}>
+          <button type="button" onClick={() => setShowScanner(s => !s)} style={{ padding: '0.4rem 0.6rem' }}>
+            {showScanner ? 'Close scanner' : 'Scan barcode'}
+          </button>
+        </div>
+        {showScanner && (
+          <div style={{ marginTop: '0.75rem' }}>
+            <BarcodeScanner
+              autoStart
+              onDetected={(code) => {
+                setBarcode(code);
+                setShowScanner(false);
+              }}
+            />
+          </div>
+        )}
       </div>
       <div>
         <label htmlFor="item-expiration">Expiration Date:</label>

@@ -28,6 +28,17 @@
   color: #61dafb;
 }
 
+/* style for buttons that should look like navigation links */
+.nav-link-button {
+  background: none;
+  border: none;
+  color: #61dafb;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  font: inherit;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
