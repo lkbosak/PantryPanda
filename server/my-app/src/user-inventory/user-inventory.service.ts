@@ -64,6 +64,22 @@ async findOne(id: number) {
     return await this.inventoryRepository.findOneBy({ inventory_id: id });
 }
 
+async findPantry(user_id: number){
+    return await this.inventoryRepository.find({ relations: ['user'], where:  { user: {user_id: user_id}, location: 'pantry'}});
+
+}
+async findFridge(user_id: number){
+    return await this.inventoryRepository.find({ relations: ['user'], where:  { user: {user_id: user_id}, location: 'fridge'}});
+
+}
+async findFreezer(user_id: number){
+    return await this.inventoryRepository.find({ relations: ['user'], where:  { user: {user_id: user_id}, location: 'freezer'}});
+
+}
+async findSpiceRack(user_id: number){
+    return await this.inventoryRepository.find({ relations: ['user'], where:  { user: {user_id: user_id}, location: 'spice rack'}});
+
+}
 async update(id: number, updateUserInventoryDto: UpdateUserInventoryDto) {
     await this.inventoryRepository.update(id, updateUserInventoryDto);
     return this.inventoryRepository.findOneBy({ inventory_id: id });
