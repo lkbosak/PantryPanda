@@ -1,2 +1,2 @@
 # PantryPanda
-Kitchen Pantry app for IT391 project
+The better Kitchen Pantry app for IT391 project
