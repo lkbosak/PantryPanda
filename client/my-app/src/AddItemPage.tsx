@@ -1,16 +1,15 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import AddItemForm from './AddItemForm';
-import {User, Product} from './types'
 
 
 const AddItemPage: React.FC = () => {
     const navigate = useNavigate();
 
     const userIdstr = localStorage.getItem('user_id');
-    // if(userIdstr == null){
-    //     throw new Error('user not logged in')
-    // }
+     if(userIdstr == null){
+         throw new Error('user not logged in')
+     }
     const user_id = Number(userIdstr);
     console.log("user id " + user_id)
     const handleAddItem = async (item: { 

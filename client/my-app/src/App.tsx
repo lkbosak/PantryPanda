@@ -1,4 +1,4 @@
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link} from 'react-router-dom';
 import Home from './Home';
 import Pantry from './Pantry';
@@ -28,7 +28,7 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem('mockUser');
     setIsLoggedIn(false);
-    window.location.href = '/';
+    globalThis.location.href = '/';
   };
 
   return (

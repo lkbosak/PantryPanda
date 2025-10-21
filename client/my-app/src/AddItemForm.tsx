@@ -6,10 +6,10 @@ interface AddItemFormProps {
 }
 
 const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
-  const [product_name, setName] = useState('');
+  const [product_name, setProduct_name] = useState('');
   const [quantity, setQuantity] = useState('1');
   const [category, setCategory] = useState('');
-  const [upc_barcode, setBarcode] = useState('');
+  const [upc_barcode, setUpc_barcode] = useState('');
   const [showScanner, setShowScanner] = useState(false);
   // default expiration date two years from now (YYYY-MM-DD)
   const twoYearsFromNow = () => {
@@ -45,7 +45,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
     }
     const minLevelNum = minLevel === '' ? undefined : Number(minLevel);
     onAdd({ product_name, quantity: qtyNum, category, upc_barcode, expirationDate: expirationDate || undefined, minLevel: minLevelNum });
-    setName('');
+    setProduct_name('');
     setQuantity('1');
     setCategory('');
   setExpirationDate(twoYearsFromNow());
@@ -62,7 +62,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
           id="item-name"
           type="text"
           value={product_name}
-          onChange={e => setName(e.target.value)}
+          onChange={e => setProduct_name(e.target.value)}
           style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
         />
       </div>
@@ -72,7 +72,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
           id="item-barcode"
           type="text"
           value={upc_barcode}
-          onChange={e => setBarcode(e.target.value)}
+          onChange={e => setUpc_barcode(e.target.value)}
           style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
         />
         <div style={{ marginTop: '0.5rem' }}>
@@ -85,7 +85,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
             <BarcodeScanner
               autoStart
               onDetected={(code) => {
-                setBarcode(code);
+                setUpc_barcode(code);
                 setShowScanner(false);
               }}
             />
