@@ -201,22 +201,23 @@ const UserSettings = () => {
   const handleDelete = () => {
     setShowConfirm(true);
   };
-  const confirmDelete = () => {
-    // Remove all user info from localStorage
-    localStorage.removeItem('mockUser');
-    localStorage.removeItem('mockUserLoggedIn');
-    localStorage.removeItem('usernameChangeCount');
-    localStorage.removeItem('emailChangeCount');
-    // If mockUser object exists, clear its fields for extra safety
-    const user = localStorage.getItem('mockUser');
-    if (user) {
-      try {
-        const userObj = JSON.parse(user);
-        userObj.username = '';
-        userObj.email = '';
-        userObj.password = '';
-        localStorage.setItem('mockUser', JSON.stringify(userObj));
-      } catch {}
+  const confirmDelete = async () => {
+    try {
+      // Call backend to permanently delete user
+      const response = await fetch('http://localhost:3001/users/delete-account', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+      if (response.ok) {
+        // Remove all user info from localStorage
+        localStorage.removeItem('mockUser');
+        localStorage.removeItem('mockUserLoggedIn');
+        localStorage.removeItem('usernameChangeCount');
+        localStorage.removeItem('emailChangeCount');
+      }
+    } catch (err) {
+      // Optionally show error message
     }
     setShowConfirm(false);
     setRedirect(true);
