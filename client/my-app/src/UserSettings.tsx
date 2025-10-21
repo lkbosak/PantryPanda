@@ -135,21 +135,36 @@ const UserSettings = () => {
     setShowEmailConfirm(true);
   };
 
-  const confirmEmailChange = () => {
-    setEmail(newEmail);
-    // Update localStorage mockUser
-    const user = localStorage.getItem('mockUser');
-    if (user) {
-      try {
-        const userObj = JSON.parse(user);
-        userObj.email = newEmail;
-        localStorage.setItem('mockUser', JSON.stringify(userObj));
-      } catch {}
+  const confirmEmailChange = async () => {
+    try {
+      // Call backend to update email
+      const response = await fetch('http://localhost:3001/users/update-email', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: newEmail }),
+        credentials: 'include',
+      });
+      if (response.ok) {
+        setEmail(newEmail);
+        // Update localStorage mockUser
+        const user = localStorage.getItem('mockUser');
+        if (user) {
+          try {
+            const userObj = JSON.parse(user);
+            userObj.email = newEmail;
+            localStorage.setItem('mockUser', JSON.stringify(userObj));
+          } catch {}
+        }
+        const newCount = emailChangeCount + 1;
+        setEmailChangeCount(newCount);
+        localStorage.setItem('emailChangeCount', newCount.toString());
+        setUpdateMsg('Email updated successfully!');
+      } else {
+        setUpdateMsg('Failed to update email.');
+      }
+    } catch (err) {
+      setUpdateMsg('Error updating email.');
     }
-    const newCount = emailChangeCount + 1;
-    setEmailChangeCount(newCount);
-    localStorage.setItem('emailChangeCount', newCount.toString());
-    setUpdateMsg('Email updated successfully!');
     setShowEmailConfirm(false);
     setNewEmail('');
     setTimeout(() => setUpdateMsg(''), 2000);
