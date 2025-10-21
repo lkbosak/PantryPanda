@@ -73,8 +73,31 @@ const UserSettings = () => {
   };
 
   const confirmResetPassword = async () => {
-    // Replace with backend call if needed
-    setResetPasswordMsg('Password updated successfully!');
+    try {
+      // Call backend to update password
+      const response = await fetch('http://localhost:3001/users/reset-password', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword, newPassword }),
+        credentials: 'include',
+      });
+      if (response.ok) {
+        // Update localStorage mockUser
+        const user = localStorage.getItem('mockUser');
+        if (user) {
+          try {
+            const userObj = JSON.parse(user);
+            userObj.password = newPassword;
+            localStorage.setItem('mockUser', JSON.stringify(userObj));
+          } catch {}
+        }
+        setResetPasswordMsg('Password updated successfully!');
+      } else {
+        setResetPasswordMsg('Failed to update password.');
+      }
+    } catch (err) {
+      setResetPasswordMsg('Error updating password.');
+    }
     setCurrentPassword('');
     setNewPassword('');
     setConfirmNewPassword('');
@@ -112,21 +135,36 @@ const UserSettings = () => {
     setShowEmailConfirm(true);
   };
 
-  const confirmEmailChange = () => {
-    setEmail(newEmail);
-    // Update localStorage mockUser
-    const user = localStorage.getItem('mockUser');
-    if (user) {
-      try {
-        const userObj = JSON.parse(user);
-        userObj.email = newEmail;
-        localStorage.setItem('mockUser', JSON.stringify(userObj));
-      } catch {}
+  const confirmEmailChange = async () => {
+    try {
+      // Call backend to update email
+      const response = await fetch('http://localhost:3001/users/update-email', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: newEmail }),
+        credentials: 'include',
+      });
+      if (response.ok) {
+        setEmail(newEmail);
+        // Update localStorage mockUser
+        const user = localStorage.getItem('mockUser');
+        if (user) {
+          try {
+            const userObj = JSON.parse(user);
+            userObj.email = newEmail;
+            localStorage.setItem('mockUser', JSON.stringify(userObj));
+          } catch {}
+        }
+        const newCount = emailChangeCount + 1;
+        setEmailChangeCount(newCount);
+        localStorage.setItem('emailChangeCount', newCount.toString());
+        setUpdateMsg('Email updated successfully!');
+      } else {
+        setUpdateMsg('Failed to update email.');
+      }
+    } catch (err) {
+      setUpdateMsg('Error updating email.');
     }
-    const newCount = emailChangeCount + 1;
-    setEmailChangeCount(newCount);
-    localStorage.setItem('emailChangeCount', newCount.toString());
-    setUpdateMsg('Email updated successfully!');
     setShowEmailConfirm(false);
     setNewEmail('');
     setTimeout(() => setUpdateMsg(''), 2000);
@@ -163,22 +201,23 @@ const UserSettings = () => {
   const handleDelete = () => {
     setShowConfirm(true);
   };
-  const confirmDelete = () => {
-    // Remove all user info from localStorage
-    localStorage.removeItem('mockUser');
-    localStorage.removeItem('mockUserLoggedIn');
-    localStorage.removeItem('usernameChangeCount');
-    localStorage.removeItem('emailChangeCount');
-    // If mockUser object exists, clear its fields for extra safety
-    const user = localStorage.getItem('mockUser');
-    if (user) {
-      try {
-        const userObj = JSON.parse(user);
-        userObj.username = '';
-        userObj.email = '';
-        userObj.password = '';
-        localStorage.setItem('mockUser', JSON.stringify(userObj));
-      } catch {}
+  const confirmDelete = async () => {
+    try {
+      // Call backend to permanently delete user
+      const response = await fetch('http://localhost:3001/users/delete-account', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+      if (response.ok) {
+        // Remove all user info from localStorage
+        localStorage.removeItem('mockUser');
+        localStorage.removeItem('mockUserLoggedIn');
+        localStorage.removeItem('usernameChangeCount');
+        localStorage.removeItem('emailChangeCount');
+      }
+    } catch (err) {
+      // Optionally show error message
     }
     setShowConfirm(false);
     setRedirect(true);
@@ -198,21 +237,36 @@ const UserSettings = () => {
     setShowUsernameConfirm(true);
   };
 
-  const confirmUsernameChange = () => {
-    setUsername(newUsername);
-    // Update localStorage mockUser
-    const user = localStorage.getItem('mockUser');
-    if (user) {
-      try {
-        const userObj = JSON.parse(user);
-        userObj.username = newUsername;
-        localStorage.setItem('mockUser', JSON.stringify(userObj));
-      } catch {}
+  const confirmUsernameChange = async () => {
+    try {
+      // Call backend to update username
+      const response = await fetch('http://localhost:3001/users/update-username', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: newUsername }),
+        credentials: 'include',
+      });
+      if (response.ok) {
+        setUsername(newUsername);
+        // Update localStorage mockUser
+        const user = localStorage.getItem('mockUser');
+        if (user) {
+          try {
+            const userObj = JSON.parse(user);
+            userObj.username = newUsername;
+            localStorage.setItem('mockUser', JSON.stringify(userObj));
+          } catch {}
+        }
+        const newCount = changeCount + 1;
+        setChangeCount(newCount);
+        localStorage.setItem('usernameChangeCount', newCount.toString());
+        setUpdateMsg('Username updated successfully!');
+      } else {
+        setUpdateMsg('Failed to update username.');
+      }
+    } catch (err) {
+      setUpdateMsg('Error updating username.');
     }
-    const newCount = changeCount + 1;
-    setChangeCount(newCount);
-    localStorage.setItem('usernameChangeCount', newCount.toString());
-    setUpdateMsg('Username updated successfully!');
     setShowUpdatedBox(true);
     setNewUsername('');
     setShowUsernameConfirm(false);
