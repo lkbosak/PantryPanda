@@ -1,8 +1,10 @@
 import React from 'react';
 import { usePantry } from './PantryContext';
+import { useNavigate } from 'react-router-dom';
 const DryGoods = () => {
     const { pantryItems } = usePantry();
     const dryGoodsItems = pantryItems.filter(item => item.category === 'Dry Goods');
+    const navigate = useNavigate();
 
     return (
     <div 
@@ -19,11 +21,14 @@ const DryGoods = () => {
         }}
     >
         <h1 style={{ color: 'white' }}>Dry Goods</h1>
-         <ul style={{ background: 'white', color: 'black', borderRadius: '8px', padding: '1rem' }}>
+                 <ul style={{ background: 'white', color: 'black', borderRadius: '8px', padding: '1rem' }}>
             {dryGoodsItems.map((item, idx) => (
                 <li key={idx}>{item.name} (x{item.quantity})</li>
         ))}
       </ul>
+            <div style={{ marginTop: 12 }}>
+                <button onClick={() => navigate('/addItem?category=Dry%20Goods')} style={{ padding: '0.5rem 0.75rem' }}>Add Item</button>
+            </div>
     </div>
     );
 };

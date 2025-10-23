@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import AddItemForm from './AddItemForm';
 
 
@@ -7,10 +7,14 @@ const AddItemPage: React.FC = () => {
     const navigate = useNavigate();
 
     const userIdstr = localStorage.getItem('user_id');
-     if(userIdstr == null){
-         throw new Error('user not logged in')
-     }
+    //  if(userIdstr == null){
+    //      throw new Error('user not logged in')
+    //  }
     const user_id = Number(userIdstr);
+    // read optional category from query param to preselect destination
+    const location = useLocation();
+    const params = new URLSearchParams(location.search);
+    const initialCategory = params.get('category') ?? undefined;
     console.log("user id " + user_id)
     const handleAddItem = async (item: { 
         product_name: string, 
@@ -63,7 +67,7 @@ const AddItemPage: React.FC = () => {
 
     };
 
-    return <AddItemForm onAdd={handleAddItem} />;
+    return <AddItemForm onAdd={handleAddItem} initialCategory={initialCategory} />;
 };
 
 

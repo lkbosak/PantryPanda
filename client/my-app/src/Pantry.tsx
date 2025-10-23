@@ -17,11 +17,11 @@ const clearButtonStyle = {
 };
 
 const Pantry = () => {
-    const { pantryItems } = usePantry();
-    const fridgeItems = pantryItems.filter(item => item.category === 'Fridge');
-    const freezerItems = pantryItems.filter(item => item.category === 'Freezer');
-    const dryGoodsItems = pantryItems.filter(item => item.category === 'Dry Goods');
-    const spiceRackItems = pantryItems.filter(item => item.category === 'Spice Rack');
+    //const { pantryItems } = usePantry();
+    // const fridgeItems = pantryItems.filter(item => item.category === 'Fridge');
+    // const freezerItems = pantryItems.filter(item => item.category === 'Freezer');
+    // const dryGoodsItems = pantryItems.filter(item => item.category === 'Dry Goods');
+    // const spiceRackItems = pantryItems.filter(item => item.category === 'Spice Rack');
 
     return (
         <div 
