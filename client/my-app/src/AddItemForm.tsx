@@ -3,13 +3,14 @@ import BarcodeScanner from './BarcodeScanner';
 
 interface AddItemFormProps {
   onAdd: (item: { product_name: string; quantity: number; category: string; upc_barcode: string; expirationDate?: string; minLevel?: number }) => void;
+  initialCategory?: string;
 }
 
-const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
-  const [product_name, setName] = useState('');
+const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd, initialCategory }) => {
+  const [product_name, setProduct_name] = useState('');
   const [quantity, setQuantity] = useState('1');
-  const [category, setCategory] = useState('');
-  const [upc_barcode, setBarcode] = useState('');
+  const [category, setCategory] = useState(initialCategory ?? '');
+  const [upc_barcode, setUpc_barcode] = useState('');
   const [showScanner, setShowScanner] = useState(false);
   // default expiration date two years from now (YYYY-MM-DD)
   const twoYearsFromNow = () => {
@@ -30,6 +31,10 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
       setError('Please enter an item name.');
       return;
     }
+    if (!upc_barcode) {
+      setError('Please enter a barcode.');
+      return;
+    }
     if (quantity === '' ) {
       setError('Please enter a quantity greater than 0.');
       return;
@@ -45,10 +50,10 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
     }
     const minLevelNum = minLevel === '' ? undefined : Number(minLevel);
     onAdd({ product_name, quantity: qtyNum, category, upc_barcode, expirationDate: expirationDate || undefined, minLevel: minLevelNum });
-    setName('');
+    setProduct_name('');
     setQuantity('1');
     setCategory('');
-  setExpirationDate(twoYearsFromNow());
+    setExpirationDate(twoYearsFromNow());
     setMinLevel('');
   };
 
@@ -62,7 +67,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
           id="item-name"
           type="text"
           value={product_name}
-          onChange={e => setName(e.target.value)}
+          onChange={e => setProduct_name(e.target.value)}
           style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
         />
       </div>
@@ -72,7 +77,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
           id="item-barcode"
           type="text"
           value={upc_barcode}
-          onChange={e => setBarcode(e.target.value)}
+          onChange={e => setUpc_barcode(e.target.value)}
           style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
         />
         <div style={{ marginTop: '0.5rem' }}>
@@ -84,8 +89,9 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
           <div style={{ marginTop: '0.75rem' }}>
             <BarcodeScanner
               autoStart
-              onDetected={(code) => {
-                setBarcode(code);
+              onDetected={(res) => {
+                if (res?.code) setUpc_barcode(res.code);
+                if (res?.name) setProduct_name(res.name);
                 setShowScanner(false);
               }}
             />
@@ -156,10 +162,10 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd }) => {
         <label htmlFor="item-category">Category:</label>
         <select id="item-category" value={category} onChange={e => setCategory(e.target.value)} style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}>
           <option value="" disabled>-- Select destination --</option>
-          <option value="fridge">Fridge</option>
-          <option value="freezer">Freezer</option>
-          <option value="spice rack">Spice Rack</option>
-          <option value="pantry">Dry Goods</option>
+          <option value="Fridge">Fridge</option>
+          <option value="Freezer">Freezer</option>
+          <option value="Spice Rack">Spice Rack</option>
+          <option value="Dry Goods">Dry Goods</option>
         </select>
       </div>
       <button type="submit" style={{ padding: '0.75rem', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>

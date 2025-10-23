@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 type Props = {
-  onDetected?: (code: string) => void;
+  onDetected?: (result: { code: string; name?: string }) => void;
   autoStart?: boolean;
 };
 
@@ -63,14 +63,16 @@ const BarcodeScanner: React.FC<Props> = ({ onDetected, autoStart = false }) => {
       selectedDeviceId,
       previewElem,
       async (result: any, error: any, controls: any) => {
-        if (result) {
+          if (result) {
           const text = result.getText();
           setResultText(`Result: ${text}`);
-          if (onDetected) onDetected(text);
+          // attempt to extract a friendly name from Nutritionix lookup
+          let friendlyName: string | undefined = undefined;
+          if (onDetected) onDetected({ code: text, name: friendlyName });
 
-          // Try to call Nutritionix and then your backend similar to original behavior
+          // Try to call Nutritionix and then backend
           try {
-            // Nutritionix call (note: API keys were in original HTML; keep or replace as needed)
+            // Nutritionix call
             const nxRes = await fetch(`https://trackapi.nutritionix.com/v2/search/item/?upc=${text}`, {
               method: 'GET',
               headers: {
@@ -82,9 +84,11 @@ const BarcodeScanner: React.FC<Props> = ({ onDetected, autoStart = false }) => {
             const nxData = await nxRes.json().catch(() => null);
             const brandName = nxData?.foods?.[0]?.brand_name || 'Unknown';
             const foodName = nxData?.foods?.[0]?.food_name || 'Unknown';
+            // once we have a friendly name, notify again by setting globalThis and (optionally) calling onDetected
+            friendlyName = `${brandName} ${foodName}`;
+            if (onDetected) onDetected({ code: text, name: friendlyName });
             setResultText(`Brand: ${brandName} ${foodName} UPC:${text}`);
-            // store globally for quick debugging (like the original did)
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
             // @ts-ignore
             globalThis.scannedFood = { upc: text, brandName, foodName };
 
