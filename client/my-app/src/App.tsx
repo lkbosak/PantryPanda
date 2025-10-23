@@ -38,15 +38,9 @@ function App() {
           {isLoggedIn ? (
             <>
               <Link to="/">Home</Link>
-<<<<<<< HEAD
-              {' |'}<Link to="/pantry">Pantry</Link>
-              {' | '}<Link to="/settings">User Settings</Link>
-              {' | '}<button onClick={handleLogout} className="nav-link-button">Logout</button>
-=======
               <Link to="/pantry">Pantry</Link>
               <Link to="/settings">User Settings</Link>
-              <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#007bff', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>Logout</button>
->>>>>>> 02605b3 (Home page changes)
+              <button onClick={handleLogout} className="nav-link-button">Logout</button>
             </>
           ) : (
             <>
