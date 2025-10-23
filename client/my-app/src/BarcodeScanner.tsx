@@ -26,12 +26,46 @@ const BarcodeScanner: React.FC<Props> = ({ onDetected, autoStart = false }) => {
       controlsRef.current = null;
     }
 
-  // dynamic import of zxing browser builds (run-time)
-  // dynamic import from UNPKG; TypeScript can't statically type these URLs so ignore the check
-  // @ts-ignore
-  const browserModule: any = await import('https://unpkg.com/@zxing/browser@0.1.4?module');
-  // @ts-ignore
-  const coreModule: any = await import('https://unpkg.com/@zxing/library@0.20.0?module');
+
+    // Load ZXing ESM modules at runtime by injecting a module script blob that imports from UNPKG.
+    // We generate the import inside a Blob to avoid bundler static analysis of `import()` calls.
+    if (!(window as any).__ZX) {
+      const moduleCode = `
+        import * as browserModule from 'https://unpkg.com/@zxing/browser@0.1.4?module';
+        import * as coreModule from 'https://unpkg.com/@zxing/library@0.20.0?module';
+        window.__ZX = { browserModule, coreModule };
+      `;
+      const blob = new Blob([moduleCode], { type: 'text/javascript' });
+      const blobUrl = URL.createObjectURL(blob);
+      const script = document.createElement('script');
+      script.type = 'module';
+      script.src = blobUrl;
+      document.head.appendChild(script);
+
+      // wait until the module attaches to window.__ZX or timeout
+      const waitForZX = new Promise<void>((resolve, reject) => {
+        const start = Date.now();
+        const interval = setInterval(() => {
+          if ((window as any).__ZX) {
+            clearInterval(interval);
+            resolve();
+          } else if (Date.now() - start > 10000) {
+            clearInterval(interval);
+            reject(new Error('Timed out loading ZXing modules'));
+          }
+        }, 200);
+      });
+      try {
+        await waitForZX;
+      } catch (err) {
+        setResultText('Failed to load scanner libraries');
+        console.error(err);
+        return;
+      }
+    }
+
+    const browserModule: any = (window as any).__ZX.browserModule;
+    const coreModule: any = (window as any).__ZX.coreModule;
 
     const BrowserMultiFormatReader = browserModule.BrowserMultiFormatReader;
     const BrowserCodeReader = browserModule.BrowserCodeReader;
