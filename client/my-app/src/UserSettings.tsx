@@ -291,7 +291,7 @@ const UserSettings = () => {
       <aside style={sidebarStyle}>
         <div style={headerStyle}>⚙️ User Settings</div>
         <div style={{fontSize: '1.1rem', fontWeight: 600, marginBottom: '16px', textAlign: 'center'}}>
-          Username: <span style={{color: '#1976d2'}}>{username}</span>
+          Username: <span style={{color: '#FF8C42'}}>{username}</span>
         </div>
         <div style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', flexGrow: 1}}>
           <button
