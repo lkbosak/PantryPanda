@@ -26,7 +26,7 @@ const BarcodeScanner: React.FC<Props> = ({ onDetected, autoStart = false }) => {
       controlsRef.current = null;
     }
 
-    // dynamic import of zxing browser builds (run-time)
+  // dynamic import of zxing browser builds (run-time)
   // dynamic import from UNPKG; TypeScript can't statically type these URLs so ignore the check
   // @ts-ignore
   const browserModule: any = await import('https://unpkg.com/@zxing/browser@0.1.4?module');
@@ -38,7 +38,7 @@ const BarcodeScanner: React.FC<Props> = ({ onDetected, autoStart = false }) => {
     const BarcodeFormat = coreModule.BarcodeFormat;
     const DecodeHintType = coreModule.DecodeHintType;
 
-    // Restrict to UPC formats as the original
+    // Restrict to UPC formats
     const hints = new Map();
     hints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.UPC_A, BarcodeFormat.UPC_E]);
 
