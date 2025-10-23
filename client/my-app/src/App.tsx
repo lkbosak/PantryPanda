@@ -34,19 +34,25 @@ function App() {
   return (
     <BrowserRouter>
       <PantryProvider>
-        <nav style={{ marginBottom: '2rem' }}>
+        <nav style={{background: 'rgba(175, 84, 84, 0.39)', padding: '10px', display: 'flex', alignItems: 'center', gap: '20px' }}>
           {isLoggedIn ? (
             <>
               <Link to="/">Home</Link>
+<<<<<<< HEAD
               {' |'}<Link to="/pantry">Pantry</Link>
               {' | '}<Link to="/settings">User Settings</Link>
               {' | '}<button onClick={handleLogout} className="nav-link-button">Logout</button>
+=======
+              <Link to="/pantry">Pantry</Link>
+              <Link to="/settings">User Settings</Link>
+              <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#007bff', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}>Logout</button>
+>>>>>>> 02605b3 (Home page changes)
             </>
           ) : (
             <>
               <Link to="/">Home</Link>
-              {' | '}<Link to="/login">Login</Link>
-              {' | '}<Link to="/signup">Sign Up</Link>
+              <Link to="/login">Login</Link>
+              <Link to="/signup">Sign Up</Link>
             </>
           )}
         </nav>
