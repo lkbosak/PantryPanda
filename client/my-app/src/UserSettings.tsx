@@ -173,7 +173,7 @@ const UserSettings = () => {
   const cancelEmailChange = () => {
     setShowEmailConfirm(false);
   };
-  const [openTab, setOpenTab] = useState<'profile' | 'notifications' | null>(null);
+  const [openTab, setOpenTab] = useState<'profile' | 'notifications' | 'inbox' | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [redirect, setRedirect] = useState(false);
   const [username, setUsername] = useState(() => {
@@ -290,9 +290,35 @@ const UserSettings = () => {
     >
       <aside style={sidebarStyle}>
         <div style={headerStyle}>⚙️ User Settings</div>
+        <button
+          style={{
+            width: '85%',
+            margin: '18px auto',
+            padding: '18px 0',
+            color: '#222',
+            fontSize: '1.1rem',
+            fontWeight: 500,
+            border: '1px solid #1976d2',
+            borderRadius: '8px',
+            background: 'rgba(255,255,255,0.95)',
+            textAlign: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+            transition: 'background 0.2s',
+          }}
+          onClick={() => setOpenTab(openTab === 'inbox' ? null : 'inbox')}
+        >
+          📥 Inbox
+        </button>
         <div style={{fontSize: '1.1rem', fontWeight: 600, marginBottom: '16px', textAlign: 'center'}}>
           Username: <span style={{color: '#FF8C42'}}>{username}</span>
         </div>
+        {openTab === 'inbox' && (
+          <div style={{ width: '85%', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px', position: 'relative' }}>
+            <div style={{fontSize: '1.2rem', fontWeight: 700, textAlign: 'center', marginBottom: '12px'}}>Your Inbox</div>
+            <div style={{fontSize: '1rem', color: '#555', textAlign: 'center'}}>No new messages.</div>
+          </div>
+        )}
         <div style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', flexGrow: 1}}>
           <button
             style={{
