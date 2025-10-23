@@ -20,16 +20,38 @@ export class UserInventoryController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.userInventoryService.findOne(+id);
+      return this.userInventoryService.findOne(+id);
   }
+
+  //for all of the find locations, it takes user id NOT inventory id
+  @Get(':findPantry')
+  findPantry(@Param('id') id: number){
+      return this.userInventoryService.findPantry(+id);
+  }
+
+  @Get('findFridge')
+  findFridge(@Param('id')id: number){
+      return this.userInventoryService.findFridge(+id);
+  }
+
+  @Get('findFreezer')
+  findFreezer(@Param('id')id: number){
+      return this.userInventoryService.findFreezer(+id);
+  }
+
+  @Get('findSpiceRack')
+  findSpiceRack(@Param('id')id: number){
+      return this.userInventoryService.findSpiceRack(+id);
+  }
+
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserInventoryDto: UpdateUserInventoryDto) {
-    return this.userInventoryService.update(+id, updateUserInventoryDto);
+      return this.userInventoryService.update(+id, updateUserInventoryDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.userInventoryService.remove(+id);
+      return this.userInventoryService.remove(+id);
   }
 }
