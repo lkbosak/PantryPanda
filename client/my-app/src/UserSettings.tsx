@@ -75,7 +75,7 @@ const UserSettings = () => {
   const confirmResetPassword = async () => {
     try {
       // Call backend to update password
-      const response = await fetch('http://localhost:3001/users/reset-password', {
+  const response = await fetch('https://pantrypanda-backend.onrender.com/users/reset-password', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentPassword, newPassword }),
@@ -138,7 +138,7 @@ const UserSettings = () => {
   const confirmEmailChange = async () => {
     try {
       // Call backend to update email
-      const response = await fetch('http://localhost:3001/users/update-email', {
+  const response = await fetch('https://pantrypanda-backend.onrender.com/users/update-email', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: newEmail }),
@@ -204,7 +204,7 @@ const UserSettings = () => {
   const confirmDelete = async () => {
     try {
       // Call backend to permanently delete user
-      const response = await fetch('http://localhost:3001/users/delete-account', {
+  const response = await fetch('https://pantrypanda-backend.onrender.com/users/delete-account', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -240,7 +240,7 @@ const UserSettings = () => {
   const confirmUsernameChange = async () => {
     try {
       // Call backend to update username
-      const response = await fetch('http://localhost:3001/users/update-username', {
+  const response = await fetch('https://pantrypanda-backend.onrender.com/users/update-username', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: newUsername }),
