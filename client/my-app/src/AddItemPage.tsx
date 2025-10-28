@@ -15,7 +15,7 @@ const AddItemPage: React.FC = () => {
     const location = useLocation();
     const params = new URLSearchParams(location.search);
     const initialCategory = params.get('category') ?? undefined;
-    console.log("user id " + user_id)
+    console.log('user id ' + user_id)
     const handleAddItem = async (item: { 
         product_name: string, 
         quantity: number, 
@@ -38,6 +38,7 @@ const AddItemPage: React.FC = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     user_id: user_id,
+                    product_name: item.product_name,
                     product_id: data.product_id,
                     quantity: Number(item.quantity),
                     unit: 'gallon', 

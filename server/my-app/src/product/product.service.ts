@@ -18,12 +18,12 @@ export class ProductService {
         // - { name, barcode, description }
         // - { product_name, barcode_upc }
         const dto: any = createProductDto as any;
-        const productName = dto.productName ?? dto.name ?? dto.product_name ?? '';
+        const product_name = dto.productName ?? dto.name ?? dto.product_name ?? '';
     const barcode = dto.barcode_upc ?? dto.barcode ?? dto.upc ?? dto.upc_barcode ?? dto.barcodeUpc ?? dto.upcBarcode ?? '';
         const description = dto.description ?? dto.desc ?? '';
 
         const product = this.productRepository.create({
-            productName,
+            product_name,
             barcode_upc: barcode,
             description,
         } as Partial<Product>);

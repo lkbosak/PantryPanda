@@ -9,7 +9,7 @@ export class Product{
   product_id: number;
 
   @Column({name: 'product_name'})
-  productName: string;
+  product_name: string;
 
   @Column({name: 'barcode_upc'})
   barcode_upc: string;

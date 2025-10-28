@@ -162,10 +162,10 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd, initialCategory }) => 
         <label htmlFor="item-category">Category:</label>
         <select id="item-category" value={category} onChange={e => setCategory(e.target.value)} style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}>
           <option value="" disabled>-- Select destination --</option>
-          <option value="Fridge">Fridge</option>
-          <option value="Freezer">Freezer</option>
-          <option value="Spice Rack">Spice Rack</option>
-          <option value="Dry Goods">Dry Goods</option>
+          <option value="fridge">Fridge</option>
+          <option value="freezer">Freezer</option>
+          <option value="spice rack">Spice Rack</option>
+          <option value="pantry">Dry Goods</option>
         </select>
       </div>
       <button type="submit" style={{ padding: '0.75rem', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>

@@ -1,6 +1,6 @@
 export class CreateProductDto {
 
-    productName: string
+    product_name: string
 
     barcode_upc: string
 

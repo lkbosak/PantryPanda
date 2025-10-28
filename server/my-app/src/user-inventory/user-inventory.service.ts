@@ -60,25 +60,26 @@ async create(dto: CreateUserInventoryDto) {
 }
 
 
-async findOne(id: number) {
-    return await this.inventoryRepository.findOneBy({ inventory_id: id });
-}
 
 async findPantry(user_id: number){
-    return await this.inventoryRepository.find({ relations: ['user'], where:  { user: {user_id: user_id}, location: 'pantry'}});
-
+    return await this.inventoryRepository.find({ relations: ['user', 'product'], 
+      where:  { user: {user_id: user_id}, location: 'pantry'}});
 }
 async findFridge(user_id: number){
-    return await this.inventoryRepository.find({ relations: ['user'], where:  { user: {user_id: user_id}, location: 'fridge'}});
+    return await this.inventoryRepository.find({ relations: ['user', 'product'], where:  { user: {user_id: user_id}, location: 'fridge'}});
 
 }
 async findFreezer(user_id: number){
-    return await this.inventoryRepository.find({ relations: ['user'], where:  { user: {user_id: user_id}, location: 'freezer'}});
+    return await this.inventoryRepository.find({ relations: ['user', 'product'], where:  { user: {user_id: user_id}, location: 'freezer'}});
 
 }
 async findSpiceRack(user_id: number){
-    return await this.inventoryRepository.find({ relations: ['user'], where:  { user: {user_id: user_id}, location: 'spice rack'}});
+    return await this.inventoryRepository.find({ relations: ['user', 'product'], where:  { user: {user_id: user_id}, location: 'spice rack'}});
 
+}
+
+async findOne(user_id: number){
+  return await this.inventoryRepository.find({relations: ['user', 'product'], where: {user: {user_id: user_id}}});
 }
 async update(id: number, updateUserInventoryDto: UpdateUserInventoryDto) {
     await this.inventoryRepository.update(id, updateUserInventoryDto);

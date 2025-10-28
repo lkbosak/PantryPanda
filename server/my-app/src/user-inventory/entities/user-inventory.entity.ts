@@ -36,7 +36,7 @@ export class UserInventory {
     //Many to one relationsihp with the product
     @ManyToOne(() => Product, (product) => product.inventoryEntries)
     @JoinColumn({name: 'product_id'})
-    product: Product
+    product: Product;
 
 
 }
