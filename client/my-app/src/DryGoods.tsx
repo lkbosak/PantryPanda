@@ -48,15 +48,63 @@ const DryGoods: React.FC = () => {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div>
-      <h1>Dry Goods</h1>
-      <ul>
+    <div
+        style={{
+            backgroundImage: "url('/home-bg.jpg')",
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            minHeight: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+            //justifyContent: 'center',
+            alignItems: 'center',
+            paddingTop: '4rem',
+        }}
+    >
+      <h1 style={{ textAlign: 'center', marginBottom: '20px', color: 'white' }}>Dry Goods</h1>
+      <table style={{ width: '80%', borderCollapse: 'collapse', marginTop: '20px', margin: '0 auto' }}>
+        <thead>
+          <tr>
+            <th style={{ border: '1px solid #ddd', padding: '12px', backgroundColor: '#f2f2f2', textAlign: 'left' }}>
+              Product Name
+            </th>
+            <th style={{ border: '1px solid #ddd', padding: '12px', backgroundColor: '#f2f2f2', textAlign: 'left' }}>
+              Quantity
+            </th>
+            <th style={{ border: '1px solid #ddd', padding: '12px', backgroundColor: '#f2f2f2', textAlign: 'left' }}>
+              Expiration Date
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {pantryItems.map(item => (
+            <tr key={item.inventory_id}>
+              <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                {item.product?.product_name ?? 'Unknown product'}
+              </td>
+              <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                {item.quantity} {item.unit || ''}
+              </td>
+              <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                {item.expiration_date ? new Date(item.expiration_date).toLocaleDateString() : 'N/A'}
+              </td>
+              <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                {item.date_added ? new Date(item.date_added).toLocaleDateString() : 'N/A'}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {/* <ul>
         {pantryItems.map(item => (
           <li key={item.inventory_id}>
             {item.product?.product_name ?? 'Unknown product'} (x{item.quantity})
           </li>
         ))}
-      </ul>
+      </ul> */}
+            <div style={{ marginTop: 12 }}>
+                <button onClick={() => navigate('/addItem?category=DryGoods')} style={{ padding: '0.5rem 0.75rem' }}>Add Item</button>
+            </div>
     </div>
   );
 };

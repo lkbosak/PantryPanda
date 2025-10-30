@@ -60,11 +60,44 @@ const Fridge: React.FC = () => {
         }}
     >
         <h1 style={{ color: 'white' }}>Fridge</h1>
-                 <ul style={{ background: 'white', color: 'black', borderRadius: '8px', padding: '1rem' }}>
+        <table style={{ width: '80%', borderCollapse: 'collapse', marginTop: '20px', margin: '0 auto' }}>
+        <thead>
+          <tr>
+            <th style={{ border: '1px solid #ddd', padding: '12px', backgroundColor: '#f2f2f2', textAlign: 'left' }}>
+              Product Name
+            </th>
+            <th style={{ border: '1px solid #ddd', padding: '12px', backgroundColor: '#f2f2f2', textAlign: 'left' }}>
+              Quantity
+            </th>
+            <th style={{ border: '1px solid #ddd', padding: '12px', backgroundColor: '#f2f2f2', textAlign: 'left' }}>
+              Expiration Date
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {fridgeItems.map(item => (
+            <tr key={item.inventory_id}>
+              <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                {item.product?.product_name ?? 'Unknown product'}
+              </td>
+              <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                {item.quantity} {item.unit || ''}
+              </td>
+              <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                {item.expiration_date ? new Date(item.expiration_date).toLocaleDateString() : 'N/A'}
+              </td>
+              <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                {item.date_added ? new Date(item.date_added).toLocaleDateString() : 'N/A'}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+                 {/* <ul style={{ background: 'white', color: 'black', borderRadius: '8px', padding: '1rem' }}>
             {fridgeItems.map((item, idx) => (
                 <li key={idx}>{item.product?.product_name} (x{item.quantity})</li>
         ))}
-      </ul>
+      </ul> */}
             <div style={{ marginTop: 12 }}>
                 <button onClick={() => navigate('/addItem?category=Fridge')} style={{ padding: '0.5rem 0.75rem' }}>Add Item</button>
             </div>
