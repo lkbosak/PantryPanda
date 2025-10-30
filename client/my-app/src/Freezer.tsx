@@ -1,10 +1,48 @@
-import React from 'react';
-import { usePantry } from './PantryContext';
+import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
-const Freezer = () => {
-    const { pantryItems } = usePantry();
-    const freezerItems = pantryItems.filter(item => item.category === 'Freezer');
-    const navigate = useNavigate();
+interface PantryItem {
+  inventory_id: number;
+  quantity: number;
+  unit?: string;
+  location?: string;
+  date_added?: string;
+  expiration_date?: string;
+  qPref?: number;
+  product?: {
+    product_id: number;
+    product_name: string;
+  };
+}
+const Freezer: React.FC = () => {
+  const navigate = useNavigate();
+  const [freezerItems, setPantryItems] = useState<PantryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFreezer = async () => {
+      try {
+        const userIdStr = localStorage.getItem('user_id');
+        if (!userIdStr) 
+          return console.error('No user_id found');
+        const user_id = Number(userIdStr);
+        if (isNaN(user_id)) 
+          return console.error('Invalid user_id');
+        const response = await fetch(`/api/user-inventory/findFreezer/${user_id}`);
+        if (!response.ok) 
+          throw new Error(`HTTP ${response.status}`);
+        console.log('Login response headers:', Object.fromEntries(response.headers.entries()));
+        const data: PantryItem[] = await response.json();
+        console.log(data);
+        setPantryItems(data);
+      } catch (err) {
+        console.error('Error fetching pantry:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFreezer();
+  }, []);
+
 
     return (
     <div 
@@ -23,7 +61,7 @@ const Freezer = () => {
         <h1 style={{ color: 'white' }}>Freezer</h1>
                  <ul style={{ background: 'white', color: 'black', borderRadius: '8px', padding: '1rem' }}>
             {freezerItems.map((item, idx) => (
-                <li key={idx}>{item.name} (x{item.quantity})</li>
+                <li key={idx}>{item.product?.product_name} (x{item.quantity})</li>
         ))}
       </ul>
             <div style={{ marginTop: 12 }}>
