@@ -127,7 +127,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     <span>Don't have an account? <Link to="/signup">Sign up</Link></span>
                 </div>
             <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-                    <span><Link to="/forgot-password">Forgot Password?</Link></span>
+                    <span><Link to="/ForgotPasswordForm">Forgot Password?</Link></span>
                 </div>
             </form>
         </div>
