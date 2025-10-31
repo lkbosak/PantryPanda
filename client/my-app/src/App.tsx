@@ -6,6 +6,7 @@ import Recipes from './Recipes';
 import Login from './Login';
 import UserSettings from './UserSettings';
 import SignUp from './SignUpForm';
+import ForgotPasswordForm from './ForgotPasswordForm';
 import Fridge from './Fridge';
 import Freezer from './Freezer';
 import SpiceRack from './SpiceRack';
@@ -57,6 +58,7 @@ function App() {
           <Route path="/login" element={<Login onLogin={() => setIsLoggedIn(true)} />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/settings" element={<UserSettings />} />
+          <Route path="/forgot-password" element={<ForgotPasswordForm />} />
           <Route path="/fridge" element={<Fridge />} />
           <Route path="/freezer" element={<Freezer />} />
           <Route path="/spicerack" element={<SpiceRack />} />
