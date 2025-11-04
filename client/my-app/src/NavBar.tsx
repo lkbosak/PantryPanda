@@ -72,6 +72,23 @@ const NavBar: React.FC<{ isLoggedIn: boolean; onLogout: () => void }> = ({
             >
               User Settings
             </Link>
+            <Link
+              to="/inbox"
+              style={{
+                fontWeight: "bold",
+                padding: "8px 12px",
+                borderRadius: "4px",
+                transition: "background 0.3s",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = "#ff7eb48f")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = "transparent")
+              }
+            >
+              📥 Inbox
+            </Link>
           </>
         )}
       </div>
