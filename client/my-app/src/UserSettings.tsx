@@ -203,21 +203,50 @@ const UserSettings = () => {
   };
   const confirmDelete = async () => {
     try {
-      // Call backend to permanently delete user
-  const response = await fetch('https://pantrypanda-backend.onrender.com/users/delete-account', {
+      // Prefer an explicit user identifier or token when present
+      const storedId = localStorage.getItem('user_id');
+      const mockUser = localStorage.getItem('mockUser');
+      let userId: string | null = null;
+      if (storedId) {
+        try { userId = JSON.parse(storedId); } catch { userId = storedId; }
+      } else if (mockUser) {
+        try { userId = JSON.parse(mockUser).id || JSON.parse(mockUser).user_id || null; } catch { userId = null; }
+      }
+
+      const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
+
+      const url = userId
+        ? `https://pantrypanda-backend.onrender.com/users/${encodeURIComponent(String(userId))}`
+        : 'https://pantrypanda-backend.onrender.com/users/delete-account';
+
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const response = await fetch(url, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        headers,
+        // send id in body only if endpoint expects it
+        body: userId ? undefined : JSON.stringify({ user_id: userId }),
+        mode: 'cors',
       });
+
       if (response.ok) {
         // Remove all user info from localStorage
         localStorage.removeItem('mockUser');
         localStorage.removeItem('mockUserLoggedIn');
         localStorage.removeItem('usernameChangeCount');
         localStorage.removeItem('emailChangeCount');
+        localStorage.removeItem('user_id');
+        localStorage.removeItem('auth_token');
+      } else {
+        // Optionally read error message from backend
+        const text = await response.text().catch(() => '');
+        // eslint-disable-next-line no-console
+        console.error('Delete failed:', response.status, text);
       }
     } catch (err) {
-      // Optionally show error message
+      // eslint-disable-next-line no-console
+      console.error('Error deleting account:', err);
     }
     setShowConfirm(false);
     setRedirect(true);
