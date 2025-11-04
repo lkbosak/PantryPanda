@@ -57,56 +57,53 @@ const SignUp = () => {
         };
         
     return (
-         <div
-            style={{
-                backgroundImage: "url('/home-bg.jpg')",
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                minHeight: '100vh',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-            }}
-        >
-            <h1 style={{color: 'white'}}>Create an account. </h1>
-            <form
-                onSubmit={handleSubmit}
+            <div
                 style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                    padding: '2rem',
-                    borderRadius: '8px',
+                    backgroundImage: "url('/home-bg.jpg')",
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    minHeight: '100vh',
                     display: 'flex',
-                    flexDirection: 'column',
-                    minWidth: '300px',
+                    justifyContent: 'center',
+                    alignItems: 'center',
                 }}
-        >
-            <h2>Sign Up for Pantry Panda</h2>
-            {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
-             <div style={{ marginBottom: '1rem' }}>
-                    <label htmlFor="email">Email:</label>
-                    <input
-                        type="email"
-                        id="email"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
-                        style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
-                        required
-                    />
-                
-                </div>
-                <div style={{ marginBottom: '1rem' }}>
-                    <label htmlFor="username">Username:</label>
-                    <input
-                        type="text"
-                        id="username"
-                        value={username}
-                        onChange={e => setUsername(e.target.value)}
-                        style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
-                        required
-                    />
-                
-                </div>
-                <div style={{ marginBottom: '1rem' }}>
+            >
+                <form
+                    onSubmit={handleSubmit}
+                    style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                        padding: '2rem',
+                        borderRadius: '8px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        minWidth: '300px',
+                    }}
+                >
+                    <h1 style={{textAlign: 'center'}}>Create an account.</h1>
+                    {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
+                    <div style={{ marginBottom: '1rem' }}>
+                        <label htmlFor="email">Email:</label>
+                        <input
+                            type="email"
+                            id="email"
+                            value={email}
+                            onChange={e => setEmail(e.target.value)}
+                            style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
+                            required
+                        />
+                    </div>
+                    <div style={{ marginBottom: '1rem' }}>
+                        <label htmlFor="username">Username:</label>
+                        <input
+                            type="text"
+                            id="username"
+                            value={username}
+                            onChange={e => setUsername(e.target.value)}
+                            style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
+                            required
+                        />
+                    </div>
+                    <div style={{ marginBottom: '1rem' }}>
                         <label htmlFor="password">Password:</label>
                         <input
                             type="password"
@@ -119,23 +116,23 @@ const SignUp = () => {
                         <div style={{ fontSize: '0.85rem', color: '#444', marginTop: '0.25rem' }}>
                             Password must be at least 8 characters, include uppercase and lowercase letters, a number, and a special character. No spaces.
                         </div>
-                </div>
-                <div style={{ marginBottom: '1rem' }}>
-                    <label htmlFor="confirmPassword">Confirm Password:</label>
-                    <input
-                        type="password"
-                        id="confirmPassword"
-                        value={confirmPassword}
-                        onChange={e => setConfirmPassword(e.target.value)}
-                        style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
-                        required
-                    />
-                </div>
-            <button type="submit" style={{ width: '100%', padding: '0.75rem', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>
-                    Sign up
-            </button>
-            </form>
-        </div>
+                    </div>
+                    <div style={{ marginBottom: '1rem' }}>
+                        <label htmlFor="confirmPassword">Confirm Password:</label>
+                        <input
+                            type="password"
+                            id="confirmPassword"
+                            value={confirmPassword}
+                            onChange={e => setConfirmPassword(e.target.value)}
+                            style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
+                            required
+                        />
+                    </div>
+                    <button type="submit" style={{ width: '100%', padding: '0.75rem', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>
+                        Sign up
+                    </button>
+                </form>
+            </div>
     );
 };
 

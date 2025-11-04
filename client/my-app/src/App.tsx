@@ -6,6 +6,7 @@ import Recipes from './Recipes';
 import Login from './Login';
 import UserSettings from './UserSettings';
 import SignUp from './SignUpForm';
+import ForgotPasswordForm from './ForgotPasswordForm';
 import Fridge from './Fridge';
 import Freezer from './Freezer';
 import SpiceRack from './SpiceRack';
@@ -13,6 +14,7 @@ import DryGoods from './DryGoods';
 import AddItemPage from './AddItemPage';
 import RemoveItemPage from './RemoveItemPage';
 import BarcodeScanner from './BarcodeScanner';
+import NavBar from './NavBar';
 
 
 import './App.css';
@@ -31,25 +33,10 @@ function App() {
     globalThis.location.href = '/';
   };
 
-  return (
+    return (
     <BrowserRouter>
       <PantryProvider>
-        <nav style={{background: 'rgba(175, 84, 84, 0.39)', padding: '10px', display: 'flex', alignItems: 'center', gap: '20px' }}>
-          {isLoggedIn ? (
-            <>
-              <Link to="/">Home</Link>
-              <Link to="/pantry">Pantry</Link>
-              <Link to="/settings">User Settings</Link>
-              <button onClick={handleLogout} className="nav-link-button">Logout</button>
-            </>
-          ) : (
-            <>
-              <Link to="/">Home</Link>
-              <Link to="/login">Login</Link>
-              <Link to="/signup">Sign Up</Link>
-            </>
-          )}
-        </nav>
+        <NavBar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/pantry" element={<Pantry />} />
@@ -57,13 +44,14 @@ function App() {
           <Route path="/login" element={<Login onLogin={() => setIsLoggedIn(true)} />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/settings" element={<UserSettings />} />
+          <Route path="/ForgotPasswordForm" element={<ForgotPasswordForm />} />
           <Route path="/fridge" element={<Fridge />} />
           <Route path="/freezer" element={<Freezer />} />
           <Route path="/spicerack" element={<SpiceRack />} />
           <Route path="/drygoods" element={<DryGoods />} />
-          <Route path="/addItem" element={<AddItemPage />} /> 
-          <Route path="/removeItem" element={< RemoveItemPage/>} />
-          <Route path="/scanner" element={<BarcodeScanner onDetected={code => console.log('Detected barcode:', code)} />} />
+          <Route path="/addItem" element={<AddItemPage />} />
+          <Route path="/removeItem" element={<RemoveItemPage />} />
+          <Route path="/scanner" element={<BarcodeScanner onDetected={(code) => console.log("Detected barcode:", code)} />} />
         </Routes>
       </PantryProvider>
     </BrowserRouter>

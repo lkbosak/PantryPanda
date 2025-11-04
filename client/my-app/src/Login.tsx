@@ -7,8 +7,6 @@ type LoginProps = {
 };
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
-    //const [email, setEmail] = useState('');
-    //const [username, setUsername] = useState('');
     const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] =useState('');
@@ -72,26 +70,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             console.error('Fetch error during login:', error);
             setError('Network error: unable to reach the server.');
         }
-        /* const stored = localStorage.getItem('mockUser');
-        if (stored) {
-            const { email: storedEmail, username: storedUser, password: storedPassword } = JSON.parse(stored);
-            if (
-                (email === storedEmail || email === storedUser) &&
-                password === storedPassword
-            ) {
-                setError('');
-                if (onLogin) onLogin();
-                alert('Login successful! Redirecting to pantry...');
-                localStorage.setItem('mockUserLoggedIn', stored);
-                navigate('/pantry');
-            } else {
-                setError('Email or password is incorrect.');
-                return;
-            }
-        }else {
-            setError('No user found. Please sign up first.');
-            return;
-        } */
+
     };
 
     return (
@@ -106,7 +85,6 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 alignItems: 'center',
             }}
         >
-            <h1 style={{color: 'white'}}>Login or create an account. </h1>
             <form
                 onSubmit={handleSubmit}
                 style={{
@@ -118,7 +96,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     minWidth: '300px',
                 }}
         >
-            <h2>Login</h2>
+            <h1>Login or create an account. </h1>
             {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
              <div style={{ marginBottom: '1rem' }}>
                     <label>Email or Username:</label>
@@ -147,6 +125,9 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             </button>
            <div style={{ marginTop: '1rem', textAlign: 'center' }}>
                     <span>Don't have an account? <Link to="/signup">Sign up</Link></span>
+                </div>
+            <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+                    <span><Link to="/ForgotPasswordForm">Forgot Password?</Link></span>
                 </div>
             </form>
         </div>
