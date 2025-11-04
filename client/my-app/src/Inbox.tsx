@@ -9,8 +9,18 @@ type Notification = {
 const Inbox: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [toast, setToast] = useState<Notification | null>(null);
+  // unread count is persisted to localStorage so NavBar can read it too
+  const UNREAD_KEY = 'inbox_unread';
 
   useEffect(() => {
+    // mark inbox as read when opened (user is viewing the inbox)
+    try {
+      localStorage.setItem(UNREAD_KEY, '0');
+      window.dispatchEvent(new CustomEvent('inbox-unread', { detail: { unread: 0 } }));
+    } catch (e) {
+      // ignore
+    }
+
     // fetch persisted notifications from backend on mount
     (async () => {
       try {
@@ -39,6 +49,7 @@ const Inbox: React.FC = () => {
           if (Array.isArray(list)) {
             const mapped = list.map((n: any) => ({ id: n.id || String(n.timestamp || Math.random()), message: n.message || n.text || JSON.stringify(n), timestamp: n.timestamp || Date.now() }));
             setNotifications(prev => [...mapped.reverse(), ...prev]);
+            // don't increment unread here because opening the inbox marks them read
           }
         }
       } catch (e) {
@@ -69,6 +80,15 @@ const Inbox: React.FC = () => {
       const n: Notification = { id: String(Date.now()) + Math.random().toString(36).slice(2,6), message: msg, timestamp: Date.now() };
       setNotifications(prev => [n, ...prev]);
       setToast(n);
+      // increment unread counter persisted to localStorage and notify NavBar
+      try {
+        const prev = parseInt(localStorage.getItem(UNREAD_KEY) || '0', 10) || 0;
+        const next = prev + 1;
+        localStorage.setItem(UNREAD_KEY, String(next));
+        window.dispatchEvent(new CustomEvent('inbox-unread', { detail: { unread: next } }));
+      } catch (err) {
+        // ignore
+      }
       // auto-hide toast after 4s
       setTimeout(() => setToast(null), 4000);
     };
