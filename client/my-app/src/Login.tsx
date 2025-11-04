@@ -96,7 +96,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     minWidth: '300px',
                 }}
         >
-            <h1>Login or create an account. </h1>
+            <h1 style={{ color: 'black', textAlign: 'center' }}>Login or create an account. </h1>
             {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
              <div style={{ marginBottom: '1rem' }}>
                     <label>Email or Username:</label>

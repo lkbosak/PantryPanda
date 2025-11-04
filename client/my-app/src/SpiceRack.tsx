@@ -17,6 +17,8 @@ interface PantryItem {
 const SpiceRack: React.FC = () => {
   const navigate = useNavigate();
   const [spiceRackItems, setPantryItems] = useState<PantryItem[]>([]);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [deleting, setDeleting] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -59,10 +61,57 @@ const SpiceRack: React.FC = () => {
             paddingTop: '4rem',
         }}
     >
-        <h1 style={{ color: 'white' }}>Spice Rack</h1>
-        <table style={{ width: '80%', borderCollapse: 'collapse', marginTop: '20px', margin: '0 auto' }}>
+        <h1 style={{ textAlign: 'center', marginBottom: '20px', color: 'white' }}>Spice Rack</h1>
+      <div style={{ width: '80%', margin: '0 auto', marginTop: 8 }}>
+        <button
+        onClick={() => navigate(-1)} // Navigate to the previous page
+        style={{
+          padding: "0.5rem 1rem",
+          backgroundColor: "#ef1f1ffd",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+          fontWeight: "bold",
+        }}
+      >
+        Back
+      </button>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+          <button
+            onClick={async () => {
+              // delete selected
+              if (selectedIds.size === 0) return alert('No items selected');
+              if (!window.confirm(`Delete ${selectedIds.size} selected item(s)?`)) return;
+              setDeleting(true);
+              try {
+                const ids = Array.from(selectedIds);
+                await Promise.all(ids.map(id => fetch(`/api/user-inventory/${id}`, { method: 'DELETE' }).then(res => {
+                  if (!res.ok) throw new Error(`Failed to delete ${id}`);
+                })));
+                // remove from UI
+                setPantryItems(prev => prev.filter(item => !selectedIds.has(item.inventory_id)));
+                setSelectedIds(new Set());
+                alert('Selected items deleted');
+              } catch (err) {
+                console.error('Delete error', err);
+                alert('Failed to delete some items. See console for details.');
+              } finally {
+                setDeleting(false);
+              }
+            }}
+            disabled={deleting || selectedIds.size === 0}
+            style={{ padding: '0.5rem 0.75rem', marginLeft: 8 }}
+          >
+            {deleting ? 'Deleting...' : 'Delete selected'}
+          </button>
+        </div>
+        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px', margin: '0 auto' }}>
         <thead>
           <tr>
+            <th style={{ border: '1px solid #ddd', padding: '12px', backgroundColor: '#f2f2f2', textAlign: 'left' }}>
+              Select
+            </th>
             <th style={{ border: '1px solid #ddd', padding: '12px', backgroundColor: '#f2f2f2', textAlign: 'left' }}>
               Product Name
             </th>
@@ -98,9 +147,10 @@ const SpiceRack: React.FC = () => {
                 <li key={idx}>{item.product?.product_name} (x{item.quantity})</li>
         ))}
       </ul> */}
-            <div style={{ marginTop: 12 }}>
-                <button onClick={() => navigate('/addItem?category=spice%20rack')} style={{ padding: '0.5rem 0.75rem' }}>Add Item</button>
+            <div style={{ marginTop: 12, display: 'flex', justifyContent: 'center' }}>
+                <button onClick={() => navigate('/addItem?category=pantry')} style={{ padding: '0.5rem 0.75rem' }}>Add Item</button>
             </div>
+          </div>
     </div>
     );
 };

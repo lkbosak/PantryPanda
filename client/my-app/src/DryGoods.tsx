@@ -65,6 +65,20 @@ const DryGoods: React.FC = () => {
     >
       <h1 style={{ textAlign: 'center', marginBottom: '20px', color: 'white' }}>Dry Goods</h1>
       <div style={{ width: '80%', margin: '0 auto', marginTop: 8 }}>
+        <button
+        onClick={() => navigate(-1)} // Navigate to the previous page
+        style={{
+          padding: "0.5rem 1rem",
+          backgroundColor: "#ef1f1ffd",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+          fontWeight: "bold",
+        }}
+      >
+        Back
+      </button>
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
           <button
             onClick={async () => {
