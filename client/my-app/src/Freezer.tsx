@@ -98,7 +98,7 @@ const Freezer: React.FC = () => {
         ))}
       </ul> */}
             <div style={{ marginTop: 12 }}>
-                <button onClick={() => navigate('/addItem?category=Freezer')} style={{ padding: '0.5rem 0.75rem' }}>Add Item</button>
+                <button onClick={() => navigate('/addItem?category=freezer')} style={{ padding: '0.5rem 0.75rem' }}>Add Item</button>
             </div>
     </div>
     );

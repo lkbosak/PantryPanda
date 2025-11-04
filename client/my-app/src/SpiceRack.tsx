@@ -99,7 +99,7 @@ const SpiceRack: React.FC = () => {
         ))}
       </ul> */}
             <div style={{ marginTop: 12 }}>
-                <button onClick={() => navigate('/addItem?category=Spice%20Rack')} style={{ padding: '0.5rem 0.75rem' }}>Add Item</button>
+                <button onClick={() => navigate('/addItem?category=spice%20rack')} style={{ padding: '0.5rem 0.75rem' }}>Add Item</button>
             </div>
     </div>
     );

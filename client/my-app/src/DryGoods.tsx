@@ -151,7 +151,7 @@ const DryGoods: React.FC = () => {
         ))}
       </ul> */}
       <div style={{ marginTop: 12, display: 'flex', justifyContent: 'center' }}>
-        <button onClick={() => navigate('/addItem?category=DryGoods')} style={{ padding: '0.5rem 0.75rem' }}>Add Item</button>
+                <button onClick={() => navigate('/addItem?category=pantry')} style={{ padding: '0.5rem 0.75rem' }}>Add Item</button>
       </div>
         </div>
     </div>
