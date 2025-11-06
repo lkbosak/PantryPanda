@@ -1,6 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+// eslint-disable-next-line
 import { usePantry } from './PantryContext';
+
 
 const clearButtonStyle = {
   width: '100%',
@@ -17,15 +20,9 @@ const clearButtonStyle = {
 };
 
 const Pantry = () => {
-    //const { pantryItems } = usePantry();
-    // const fridgeItems = pantryItems.filter(item => item.category === 'Fridge');
-    // const freezerItems = pantryItems.filter(item => item.category === 'Freezer');
-    // const dryGoodsItems = pantryItems.filter(item => item.category === 'Dry Goods');
-    // const spiceRackItems = pantryItems.filter(item => item.category === 'Spice Rack');
-
+    const navigate = useNavigate();
     return (
-        <div 
-            style={{
+        <div style={{
                     backgroundImage: "url('/home-bg.jpg')",
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
@@ -35,64 +32,51 @@ const Pantry = () => {
                     //justifyContent: 'center',
                     alignItems: 'center',
                     paddingTop: '4rem',
-                }}
-        >
-            <h1 style={{ 
-                marginBottom: '6rem',
-                color: 'white' 
                 }}>
-                    Your Pantry
-            </h1>
-            {/* <h2>Fridge</h2>
-            <ul>
-                {fridgeItems.map((item, idx) => (
-                <li key={idx}>{item.name} (x{item.quantity})</li>
-                ))}
-            </ul>
-            <h2>Freezer</h2>
-            <ul>
-                {freezerItems.map((item, idx) => (
-                <li key={idx}>{item.name} (x{item.quantity})</li>
-                ))}
-            </ul>
-            <h2>Dry Goods</h2>
-            <ul>
-                {dryGoodsItems.map((item, idx) => (
-                <li key={idx}>{item.name} (x{item.quantity})</li>
-                ))}
-            </ul>
-            <h2>Spice Rack</h2>
-            <ul>
-                {spiceRackItems.map((item, idx) => (
-                <li key={idx}>{item.name} (x{item.quantity})</li>
-                ))}
-            </ul> */}
-            <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: '1fr 1fr', 
-                gap: '1.5rem', 
-                width: '100%', 
-                maxWidth: '700px', 
-                margin: '0 auto'
-            }}>
-                <Link to="/fridge">
-                    <button style={clearButtonStyle}>Fridge</button>
-                </Link>
-                <Link to="/freezer">
-                    <button style={clearButtonStyle}>Freezer</button>
-                </Link>
-                <Link to="/spicerack">
-                    <button style={clearButtonStyle}>Spice Rack</button>
-                </Link>
-                <Link to="/drygoods">
-                    <button style={clearButtonStyle}>Dry Goods</button>
-                </Link>
-                <Link to="/AddItem">
-                    <button style={clearButtonStyle}>Add Item</button>
-                </Link>
-                <Link to="/RemoveItem">
-                    <button style={clearButtonStyle}>Remove Item</button>
-                </Link>
+            <h1 style={{marginBottom: '6rem',color: 'white' }}>Your Pantry</h1>
+            <div style={{ width: '80%', margin: '0 auto', marginTop: 8 }}>
+                <button
+                    onClick={() => navigate(-1)}
+                    style={{
+                        padding: "0.5rem 1rem",
+                        backgroundColor: "#fb0000ff",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                        marginBottom: '1rem', // Adjust spacing to match SpiceRack
+                    }}
+                >
+                    Back
+                </button>
+                <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: '1fr 1fr', 
+                    gap: '1.5rem', 
+                    width: '100%', 
+                    maxWidth: '700px', 
+                    margin: '0 auto'
+                }}>
+                    <Link to="/fridge">
+                        <button style={clearButtonStyle}>Fridge</button>
+                    </Link>
+                    <Link to="/freezer">
+                        <button style={clearButtonStyle}>Freezer</button>
+                    </Link>
+                    <Link to="/spicerack">
+                        <button style={clearButtonStyle}>Spice Rack</button>
+                    </Link>
+                    <Link to="/drygoods">
+                        <button style={clearButtonStyle}>Dry Goods</button>
+                    </Link>
+                    <Link to="/AddItem" style={{ gridColumn: '1 / -1' }}>
+                        <button style={clearButtonStyle}>Add Item</button>
+                    </Link>
+                    {/* <Link to="/RemoveItem">
+                        <button style={clearButtonStyle}>Remove Item</button>
+                    </Link> */}
+                </div>
             </div>
         </div>
     );

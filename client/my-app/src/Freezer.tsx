@@ -18,6 +18,7 @@ const Freezer: React.FC = () => {
   const [freezerItems, setPantryItems] = useState<PantryItem[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [deleting, setDeleting] = useState(false);
+  // eslint-disable-next-line
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -66,7 +67,7 @@ const Freezer: React.FC = () => {
         onClick={() => navigate(-1)} // Navigate to the previous page
         style={{
           padding: "0.5rem 1rem",
-          backgroundColor: "#ef1f1ffd",
+          backgroundColor: "#ff0000ff",
           color: "white",
           border: "none",
           borderRadius: "4px",
