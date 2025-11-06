@@ -4,4 +4,8 @@ export class CreateGroceryListDto {
 
     isPurchased: boolean;
 
+    product_id: number;
+
+    user_id: number;
+
 }
