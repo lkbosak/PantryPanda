@@ -2,35 +2,10 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-const UNREAD_KEY = 'inbox_unread';
-
 const NavBar: React.FC<{ isLoggedIn: boolean; onLogout: () => void }> = ({
   isLoggedIn,
   onLogout,
 }) => {
-  const [unread, setUnread] = useState<number>(() => {
-    try {
-      return parseInt(localStorage.getItem(UNREAD_KEY) || '0', 10) || 0;
-    } catch {
-      return 0;
-    }
-  });
-
-  useEffect(() => {
-    const handler = (e: Event) => {
-      const ev = e as CustomEvent;
-      const val = ev?.detail?.unread;
-      if (typeof val === 'number') setUnread(val);
-      else {
-        try {
-          setUnread(parseInt(localStorage.getItem(UNREAD_KEY) || '0', 10) || 0);
-        } catch { /* ignore */ }
-      }
-    };
-    window.addEventListener('inbox-unread', handler as EventListener);
-    return () => window.removeEventListener('inbox-unread', handler as EventListener);
-  }, []);
-
   return (
     <nav
       style={{
@@ -121,19 +96,7 @@ const NavBar: React.FC<{ isLoggedIn: boolean; onLogout: () => void }> = ({
                 (e.currentTarget.style.background = "transparent")
               }
             >
-              <span>📥 Inbox</span>
-              {unread > 0 && (
-                <span style={{
-                  background: '#d32f2f',
-                  color: 'white',
-                  borderRadius: 999,
-                  padding: '2px 8px',
-                  fontSize: '0.8rem',
-                  fontWeight: 700,
-                  lineHeight: 1,
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
-                }}>{unread}</span>
-              )}
+              📥 Inbox
             </Link>
           </>
         )}

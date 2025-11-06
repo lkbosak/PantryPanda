@@ -19,6 +19,21 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             Error('Please enter both email/username and password.');
             return;
         }
+        // Block login if this identifier is recorded as deleted on this client
+        try {
+            const deletedRaw = localStorage.getItem('deleted_accounts');
+            const deleted: string[] = deletedRaw ? JSON.parse(deletedRaw) : [];
+            if (deleted && Array.isArray(deleted)) {
+                const idLower = identifier.toLowerCase();
+                const found = deleted.some(d => String(d).toLowerCase() === idLower);
+                if (found) {
+                    setError('This account has been deleted and cannot be used to sign in. Recreate the account to sign in again.');
+                    return;
+                }
+            }
+        } catch (err) {
+            // ignore parsing errors
+        }
         try {
             const response = await fetch('/api/users/login', {
                 method: 'POST',
