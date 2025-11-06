@@ -38,11 +38,19 @@ export class UserInventoryController {
   findSpiceRack(@Param('id')id: number){
       return this.userInventoryService.findSpiceRack(+id);
   }
+  //add get all 
+
+  @Get('findAll/:id')
+  findAll(@Param('id')id: number){
+    return this.userInventoryService.findAll(+id);
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.userInventoryService.findOne(+id);
   }
+
+
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserInventoryDto: UpdateUserInventoryDto) {

@@ -19,8 +19,9 @@ export class UserInventoryService {
     ) {}
 
     // Return all inventory entries. Include related user and product for convenience.
-    async findAll() {
-        return await this.inventoryRepository.find({ relations: ['user', 'product'] });
+    async findAll(user_id: number) {
+        return await this.inventoryRepository.find({ relations: ['user', 'product'], 
+        where: {user: { user_id: user_id }}});
     }
 
 async create(dto: CreateUserInventoryDto) {
