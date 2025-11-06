@@ -97,76 +97,119 @@ const Inbox: React.FC = () => {
     return () => window.removeEventListener('pantry-change', handler as EventListener);
   }, []);
 
+  // replicate settings page layout styles
+  const sidebarStyle: React.CSSProperties = {
+    height: '100vh',
+    width: '240px',
+    background: 'rgba(240,240,240,0.7)',
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'flex-start',
+    padding: '40px 0 0 0',
+    boxShadow: '2px 0 8px rgba(0,0,0,0.04)',
+    zIndex: 1,
+  };
+
+  const headerStyle: React.CSSProperties = {
+    fontSize: '2.2rem',
+    fontWeight: 900,
+    margin: '0 0 40px 0',
+    borderBottom: '3px solid #222',
+    paddingBottom: '12px',
+    width: '100%',
+    letterSpacing: '1px',
+    textAlign: 'center',
+  };
+
+  const contentStyle: React.CSSProperties = {
+    marginLeft: '240px',
+    padding: '48px',
+    minHeight: '100vh',
+    position: 'relative',
+    zIndex: 2,
+  };
+
+  const linkStyle: React.CSSProperties = {
+    display: 'block',
+    width: '85%',
+    margin: '18px auto',
+    padding: '18px 0',
+    color: '#222',
+    textDecoration: 'none',
+    fontSize: '1.1rem',
+    fontWeight: 500,
+    border: '1px solid #bbb',
+    borderRadius: '8px',
+    background: 'rgba(255,255,255,0.85)',
+    textAlign: 'center' as const,
+    cursor: 'pointer',
+    boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+    transition: 'background 0.2s',
+  };
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: "linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)",
-      backgroundImage: "url('/main-bg.jpg')",
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      width: '100vw',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'flex-start',
-      paddingTop: '72px',
-    }}>
-      <div style={{
-        fontSize: '2.2rem',
-        fontWeight: 900,
-        color: '#1976d2',
-        marginBottom: '32px',
-        letterSpacing: '1px',
-      }}>
-        📥 Inbox
-      </div>
-
-      {/* Toast */}
-      {toast && (
-        <div style={{
-          position: 'fixed',
-          top: 84,
-          right: 24,
-          background: 'rgba(33,150,243,0.95)',
-          color: 'white',
-          padding: '12px 18px',
-          borderRadius: 8,
-          boxShadow: '0 6px 18px rgba(0,0,0,0.15)',
-          zIndex: 4000,
-          maxWidth: 360,
-        }}>
-          <div style={{ fontWeight: 700, marginBottom: 6 }}>Notification</div>
-          <div style={{ fontSize: '0.95rem' }}>{toast.message}</div>
+    <div
+      style={{
+        display: 'flex',
+        minHeight: '100vh',
+        background: "linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)",
+        backgroundImage: "url('/home-bg.jpg')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        width: '100vw',
+      }}
+    >
+      <aside style={sidebarStyle}>
+        <div style={headerStyle}>📥 Inbox</div>
+        <div style={{fontSize: '1.1rem', fontWeight: 600, marginBottom: '16px', textAlign: 'center'}}>
+          Notifications
         </div>
-      )}
+        <div style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', flexGrow: 1}}>
+          <button style={linkStyle}>All Notifications</button>
+          <button style={linkStyle}>Unread</button>
+          <button style={linkStyle}>Settings</button>
+        </div>
+      </aside>
 
-      <div style={{
-        background: 'rgba(255,255,255,0.95)',
-        borderRadius: '12px',
-        boxShadow: '0 2px 16px rgba(0,0,0,0.10)',
-        padding: '24px',
-        minWidth: '420px',
-        textAlign: 'left',
-        marginTop: '12px',
-      }}>
-        {notifications.length === 0 ? (
-          <div style={{fontSize: '1.2rem', fontWeight: 600, color: '#222'}}>
-            Your inbox is empty.
-          </div>
-        ) : (
-          <div>
-            <div style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: 12 }}>Recent notifications</div>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {notifications.map(n => (
-                <li key={n.id} style={{ padding: 12, borderRadius: 8, background: '#f6f7fb', boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.02)' }}>
-                  <div style={{ fontSize: '0.95rem' }}>{n.message}</div>
-                  <div style={{ fontSize: '0.75rem', color: '#666', marginTop: 6 }}>{new Date(n.timestamp).toLocaleString()}</div>
-                </li>
-              ))}
-            </ul>
+      <main style={contentStyle}>
+        {/* Toast */}
+        {toast && (
+          <div style={{
+            position: 'fixed',
+            top: 84,
+            right: 24,
+            background: 'rgba(33,150,243,0.95)',
+            color: 'white',
+            padding: '12px 18px',
+            borderRadius: 8,
+            boxShadow: '0 6px 18px rgba(0,0,0,0.15)',
+            zIndex: 4000,
+            maxWidth: 360,
+          }}>
+            <div style={{ fontWeight: 700, marginBottom: 6 }}>Notification</div>
+            <div style={{ fontSize: '0.95rem' }}>{toast.message}</div>
           </div>
         )}
-      </div>
+
+        <div style={{ background: 'rgba(255,255,255,0.92)', borderRadius: '12px', boxShadow: '0 8px 28px rgba(0,0,0,0.14)', padding: '24px', maxWidth: 920 }}>
+          {notifications.length === 0 ? (
+            <div style={{fontSize: '1.2rem', fontWeight: 600, color: '#222'}}>Your inbox is empty.</div>
+          ) : (
+            <div>
+              <div style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: 12 }}>Recent notifications</div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {notifications.map(n => (
+                  <li key={n.id} style={{ padding: 12, borderRadius: 8, background: '#f6f7fb', boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.02)' }}>
+                    <div style={{ fontSize: '0.95rem' }}>{n.message}</div>
+                    <div style={{ fontSize: '0.75rem', color: '#666', marginTop: 6 }}>{new Date(n.timestamp).toLocaleString()}</div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 };
