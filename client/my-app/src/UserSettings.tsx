@@ -232,6 +232,33 @@ const UserSettings = () => {
 
       if (response.ok) {
         // Remove all user info from localStorage
+        try {
+          // Record a local marker so this client will block sign-in attempts for this account
+          const userRaw = localStorage.getItem('mockUser');
+          let identifiers: string[] = [];
+          if (userRaw) {
+            try {
+              const u = JSON.parse(userRaw);
+              if (u.id) identifiers.push(String(u.id));
+              if (u.user_id) identifiers.push(String(u.user_id));
+              if (u.username) identifiers.push(String(u.username));
+              if (u.email) identifiers.push(String(u.email));
+            } catch {
+              identifiers.push(userRaw);
+            }
+          }
+          const stored = localStorage.getItem('deleted_accounts');
+          let arr: string[] = [];
+          try { arr = stored ? JSON.parse(stored) : []; } catch { arr = []; }
+          identifiers.forEach(id => {
+            if (id && !arr.includes(id)) arr.push(id);
+          });
+          localStorage.setItem('deleted_accounts', JSON.stringify(arr));
+        } catch (e) {
+          // ignore localStorage errors
+        }
+
+        // remove session and user info
         localStorage.removeItem('mockUser');
         localStorage.removeItem('mockUserLoggedIn');
         localStorage.removeItem('usernameChangeCount');
