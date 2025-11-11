@@ -11,6 +11,7 @@ import Fridge from './Fridge';
 import Freezer from './Freezer';
 import SpiceRack from './SpiceRack';
 import DryGoods from './DryGoods';
+import GroceryList from './GroceryList';
 import AddItemPage from './AddItemPage';
 import RemoveItemPage from './RemoveItemPage';
 import BarcodeScanner from './BarcodeScanner';
@@ -49,6 +50,7 @@ function App() {
           <Route path="/freezer" element={<Freezer />} />
           <Route path="/spicerack" element={<SpiceRack />} />
           <Route path="/drygoods" element={<DryGoods />} />
+          <Route path="/grocery-list" element={<GroceryList />} />
           <Route path="/addItem" element={<AddItemPage />} />
           <Route path="/removeItem" element={<RemoveItemPage />} />
           <Route path="/scanner" element={<BarcodeScanner onDetected={(code) => console.log("Detected barcode:", code)} />} />

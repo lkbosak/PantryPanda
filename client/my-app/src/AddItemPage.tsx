@@ -39,6 +39,21 @@ const AddItemPage: React.FC = () => {
                     qPref: item.minLevel ?? 1,
                 })
             });
+            // create a GroceryList entry so the item appears on the user's shopping list
+            try {
+                await fetch('/api/grocery-list', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        qToBuy: item.minLevel ?? 1,
+                        isPurchased: true,
+                        product_id: data.product_id,
+                        user_id: user_id,
+                    })
+                });
+            } catch (err) {
+                console.error('Failed to create grocery list entry', err);
+            }
             try{
                 if (response.ok && data) {
                     alert('Product added');
