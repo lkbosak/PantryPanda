@@ -123,6 +123,9 @@ const DryGoods: React.FC = () => {
             <th style={{ border: '1px solid #ddd', padding: '12px', backgroundColor: '#f2f2f2', textAlign: 'left' }}>
               Expiration Date
             </th>
+            <th style={{ border: '1px solid #ddd', padding: '12px', backgroundColor: '#f2f2f2', textAlign: 'left' }}>
+              Date Added
+            </th>
           </tr>
         </thead>
         <tbody>

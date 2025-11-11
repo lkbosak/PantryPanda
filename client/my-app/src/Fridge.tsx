@@ -121,11 +121,27 @@ const Fridge: React.FC = () => {
             <th style={{ border: '1px solid #ddd', padding: '12px', backgroundColor: '#f2f2f2', textAlign: 'left' }}>
               Expiration Date
             </th>
+            <th style={{ border: '1px solid #ddd', padding: '12px', backgroundColor: '#f2f2f2', textAlign: 'left' }}>
+              Date Added
+            </th>
           </tr>
         </thead>
         <tbody>
           {fridgeItems.map(item => (
             <tr key={item.inventory_id}>
+              <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
+                <input
+                  type="checkbox"
+                  id={`select-${item.inventory_id}`}
+                  checked={selectedIds.has(item.inventory_id)}
+                  onChange={() => setSelectedIds(prev => {
+                    const next = new Set(prev);
+                    if (next.has(item.inventory_id)) next.delete(item.inventory_id);
+                    else next.add(item.inventory_id);
+                    return next;
+                  })}
+                />
+              </td>
               <td style={{ border: '1px solid #ddd', padding: '12px' }}>
                 {item.product?.product_name ?? 'Unknown product'}
               </td>
