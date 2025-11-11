@@ -69,7 +69,7 @@ const DryGoods: React.FC = () => {
         onClick={() => navigate(-1)} // Navigate to the previous page
         style={{
           padding: "0.5rem 1rem",
-          backgroundColor: "#ef1f1ffd",
+          backgroundColor: "#ff0000ff",
           color: "white",
           border: "none",
           borderRadius: "4px",

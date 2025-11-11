@@ -16,6 +16,7 @@ const NavBar: React.FC<{ isLoggedIn: boolean; onLogout: () => void }> = ({
         justifyContent: "space-between",
         boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Subtle shadow
         borderRadius: "8px", // Rounded corners
+        flexWrap: 'wrap'
       }}
     >
       <div style={{ display: "flex", gap: "20px", alignItems: 'center' }}>
@@ -26,6 +27,7 @@ const NavBar: React.FC<{ isLoggedIn: boolean; onLogout: () => void }> = ({
             padding: "8px 12px",
             borderRadius: "4px",
             transition: "background 0.3s",
+            fontSize: '1rem'
           }}
           onMouseEnter={(e) =>
             (e.currentTarget.style.background = "#ff7eb4a4")
@@ -45,6 +47,7 @@ const NavBar: React.FC<{ isLoggedIn: boolean; onLogout: () => void }> = ({
                 padding: "8px 12px",
                 borderRadius: "4px",
                 transition: "background 0.3s",
+                fontSize: '1rem'
               }}
               onMouseEnter={(e) =>
                 (e.currentTarget.style.background = "#ff7eb491")
@@ -62,6 +65,7 @@ const NavBar: React.FC<{ isLoggedIn: boolean; onLogout: () => void }> = ({
                 padding: "8px 12px",
                 borderRadius: "4px",
                 transition: "background 0.3s",
+                fontSize: '1rem'
               }}
               onMouseEnter={(e) =>
                 (e.currentTarget.style.background = "#ff7eb48f")
@@ -79,6 +83,11 @@ const NavBar: React.FC<{ isLoggedIn: boolean; onLogout: () => void }> = ({
                 padding: "8px 12px",
                 borderRadius: "4px",
                 transition: "background 0.3s",
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                position: 'relative',
+                fontSize: '1rem'
               }}
               onMouseEnter={(e) =>
                 (e.currentTarget.style.background = "#ff7eb48f")
@@ -104,6 +113,7 @@ const NavBar: React.FC<{ isLoggedIn: boolean; onLogout: () => void }> = ({
             cursor: "pointer",
             fontWeight: "bold",
             transition: "background 0.3s",
+            fontSize: '1rem'
           }}
           onMouseEnter={(e) =>
             (e.currentTarget.style.background = "#ff4d6e92")
@@ -123,6 +133,7 @@ const NavBar: React.FC<{ isLoggedIn: boolean; onLogout: () => void }> = ({
               padding: "8px 12px",
               borderRadius: "4px",
               transition: "background 0.3s",
+              fontSize: '1rem'
             }}
             onMouseEnter={(e) =>
               (e.currentTarget.style.background = "#ff7eb48b")
@@ -140,6 +151,7 @@ const NavBar: React.FC<{ isLoggedIn: boolean; onLogout: () => void }> = ({
               padding: "8px 12px",
               borderRadius: "4px",
               transition: "background 0.3s",
+              fontSize: '1rem'
             }}
             onMouseEnter={(e) =>
               (e.currentTarget.style.background = "#ff7eb484")

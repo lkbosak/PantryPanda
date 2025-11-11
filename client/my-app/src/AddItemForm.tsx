@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import BarcodeScanner from './BarcodeScanner';
-
+import { useNavigate } from 'react-router-dom';
 interface AddItemFormProps {
   onAdd: (item: { product_name: string; quantity: number; category: string; upc_barcode: string; expirationDate?: string; minLevel?: number }) => void;
   initialCategory?: string;
@@ -24,6 +24,7 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd, initialCategory }) => 
   const [expirationDate, setExpirationDate] = useState(twoYearsFromNow());
   const [minLevel, setMinLevel] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,120 +59,148 @@ const AddItemForm: React.FC<AddItemFormProps> = ({ onAdd, initialCategory }) => 
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', background: 'rgba(255,255,255,0.9)', padding: '1.5rem', borderRadius: '10px', maxWidth: '350px' }}>
-      <h3>Add Item</h3>
-      {error && <div style={{ color: 'red' }}>{error}</div>}
-      <div>
-        <label htmlFor="item-name">Name:</label>
-        <input
-          id="item-name"
-          type="text"
-          value={product_name}
-          onChange={e => setProduct_name(e.target.value)}
-          style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
-        />
-      </div>
-      <div>
-        <label htmlFor="item-barcode">Barcode:</label>
-        <input
-          id="item-barcode"
-          type="text"
-          value={upc_barcode}
-          onChange={e => setUpc_barcode(e.target.value)}
-          style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
-        />
-        <div style={{ marginTop: '0.5rem' }}>
-          <button type="button" onClick={() => setShowScanner(s => !s)} style={{ padding: '0.4rem 0.6rem' }}>
-            {showScanner ? 'Close scanner' : 'Scan barcode'}
-          </button>
+    <div style={{
+      backgroundImage: "url('/home-bg.jpg')",
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      paddingTop: '4rem',
+    }}>
+      <div style={{ width: '80%', margin: '0 auto', marginTop: 8 }}>
+                <button
+                    onClick={() => navigate(-1)}
+                    style={{
+                        padding: "0.5rem 1rem",
+                        backgroundColor: "#fb0000ff",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                        marginBottom: '1rem', // Adjust spacing to match SpiceRack
+                    }}
+                >
+                    Back
+                </button>
         </div>
-        {showScanner && (
-          <div style={{ marginTop: '0.75rem' }}>
-            <BarcodeScanner
-              autoStart
-              onDetected={(res) => {
-                if (res?.code) setUpc_barcode(res.code);
-                if (res?.name) setProduct_name(res.name);
-                setShowScanner(false);
-              }}
-            />
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', background: 'rgba(255,255,255,0.9)', padding: '1.5rem', borderRadius: '10px', maxWidth: '350px' }}>
+        <h3>Add Item</h3>
+        {error && <div style={{ color: 'red' }}>{error}</div>}
+        <div>
+          <label htmlFor="item-name">Name:</label>
+          <input
+            id="item-name"
+            type="text"
+            value={product_name}
+            onChange={e => setProduct_name(e.target.value)}
+            style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
+          />
+        </div>
+        <div>
+          <label htmlFor="item-barcode">Barcode:</label>
+          <input
+            id="item-barcode"
+            type="text"
+            value={upc_barcode}
+            onChange={e => setUpc_barcode(e.target.value)}
+            style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
+          />
+          <div style={{ marginTop: '0.5rem' }}>
+            <button type="button" onClick={() => setShowScanner(s => !s)} style={{ padding: '0.4rem 0.6rem' }}>
+              {showScanner ? 'Close scanner' : 'Scan barcode'}
+            </button>
           </div>
-        )}
-      </div>
-      <div>
-        <label htmlFor="item-expiration">Expiration Date:</label>
-        <input
-          id="item-expiration"
-          type="date"
-          value={expirationDate}
-          onChange={e => setExpirationDate(e.target.value)}
-          style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
-        />
-      </div>
-      <div>
-        <label htmlFor="item-minlevel">Desired minimum quantity:</label>
-        <input
-          id="item-minlevel"
-          type="text"
-          inputMode="numeric"
-          pattern="\d*"
-          value={minLevel}
-          onKeyDown={e => {
-            if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) return;
-            // block anything that's not a digit
-            if (!/^\d$/.test(e.key)) e.preventDefault();
-          }}
-          onPaste={e => {
-            const text = e.clipboardData.getData('text');
-            if (!/^\d*$/.test(text)) {
-              e.preventDefault();
-            }
-          }}
-          onChange={e => {
-            const v = e.target.value;
-            if (/^\d*$/.test(v)) setMinLevel(v);
-          }}
-          style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
-        />
-      </div>
-      <div>
-        <label htmlFor="item-quantity">Quantity:</label>
-        <input
-          id="item-quantity"
-          type="text"
-          inputMode="numeric"
-          pattern="\d*"
-          value={quantity}
-          onKeyDown={e => {
-            if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) return;
-            if (!/^\d$/.test(e.key)) e.preventDefault();
-          }}
-          onPaste={e => {
-            const text = e.clipboardData.getData('text');
-            if (!/^\d*$/.test(text)) e.preventDefault();
-          }}
-          onChange={e => {
-            const v = e.target.value;
-            if (v === '' || /^\d+$/.test(v)) setQuantity(v);
-          }}
-          style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="item-category">Category:</label>
-        <select id="item-category" value={category} onChange={e => setCategory(e.target.value)} style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}>
-          <option value="" disabled>-- Select destination --</option>
-          <option value="fridge">Fridge</option>
-          <option value="freezer">Freezer</option>
-          <option value="spice rack">Spice Rack</option>
-          <option value="pantry">Dry Goods</option>
-        </select>
-      </div>
-      <button type="submit" style={{ padding: '0.75rem', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>
-        Add Item
-      </button>
-    </form>
+          {showScanner && (
+            <div style={{ marginTop: '0.75rem' }}>
+              <BarcodeScanner
+                autoStart
+                onDetected={(res) => {
+                  if (res?.code) setUpc_barcode(res.code);
+                  if (res?.name) setProduct_name(res.name);
+                  setShowScanner(false);
+                }}
+              />
+            </div>
+          )}
+        </div>
+        <div>
+          <label htmlFor="item-expiration">Expiration Date:</label>
+          <input
+            id="item-expiration"
+            type="date"
+            value={expirationDate}
+            onChange={e => setExpirationDate(e.target.value)}
+            style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
+          />
+        </div>
+        <div>
+          <label htmlFor="item-minlevel">Desired minimum quantity:</label>
+          <input
+            id="item-minlevel"
+            type="text"
+            inputMode="numeric"
+            pattern="\d*"
+            value={minLevel}
+            onKeyDown={e => {
+              if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) return;
+              // block anything that's not a digit
+              if (!/^\d$/.test(e.key)) e.preventDefault();
+            }}
+            onPaste={e => {
+              const text = e.clipboardData.getData('text');
+              if (!/^\d*$/.test(text)) {
+                e.preventDefault();
+              }
+            }}
+            onChange={e => {
+              const v = e.target.value;
+              if (/^\d*$/.test(v)) setMinLevel(v);
+            }}
+            style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
+          />
+        </div>
+        <div>
+          <label htmlFor="item-quantity">Quantity:</label>
+          <input
+            id="item-quantity"
+            type="text"
+            inputMode="numeric"
+            pattern="\d*"
+            value={quantity}
+            onKeyDown={e => {
+              if (['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key)) return;
+              if (!/^\d$/.test(e.key)) e.preventDefault();
+            }}
+            onPaste={e => {
+              const text = e.clipboardData.getData('text');
+              if (!/^\d*$/.test(text)) e.preventDefault();
+            }}
+            onChange={e => {
+              const v = e.target.value;
+              if (v === '' || /^\d+$/.test(v)) setQuantity(v);
+            }}
+            style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="item-category">Category:</label>
+          <select id="item-category" value={category} onChange={e => setCategory(e.target.value)} style={{ width: '100%', padding: '0.5rem', marginTop: '0.25rem' }}>
+            <option value="" disabled>-- Select destination --</option>
+            <option value="fridge">Fridge</option>
+            <option value="freezer">Freezer</option>
+            <option value="spice rack">Spice Rack</option>
+            <option value="pantry">Dry Goods</option>
+          </select>
+        </div>
+        <button type="submit" style={{ padding: '0.75rem', background: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold' }}>
+          Add Item
+        </button>
+      </form>
+    </div>
   );
 };
 
