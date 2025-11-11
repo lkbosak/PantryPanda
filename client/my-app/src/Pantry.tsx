@@ -31,13 +31,15 @@ const Pantry = () => {
                     flexDirection: 'column',
                     //justifyContent: 'center',
                     alignItems: 'center',
-                    paddingTop: '4rem',
+                    //paddingTop: '4rem',
                 }}>
-            <h1 style={{marginBottom: '6rem',color: 'white' }}>Your Pantry</h1>
-            <div style={{ width: '80%', margin: '0 auto', marginTop: 8 }}>
+            <h1 style={{ color: 'white' }}>Your Pantry</h1>
+            <div style={{ width: '80%', margin: '0 auto' }}>
                 <button
                     onClick={() => navigate(-1)}
                     style={{
+                        position: 'relative',
+                        left: '10rem',// Align with the table
                         padding: "0.5rem 1rem",
                         backgroundColor: "#fb0000ff",
                         color: "white",

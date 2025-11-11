@@ -106,7 +106,7 @@ const Fridge: React.FC = () => {
             {deleting ? 'Deleting...' : 'Delete selected'}
           </button>
         </div>
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px', margin: '0 auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', overflow: 'hidden' }}>
         <thead>
           <tr>
             <th style={{ border: '1px solid #ddd', padding: '12px', backgroundColor: '#f2f2f2', textAlign: 'left' }}>
