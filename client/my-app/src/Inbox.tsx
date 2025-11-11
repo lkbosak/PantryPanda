@@ -9,13 +9,29 @@ export function Inbox(): React.ReactElement {
 			width: '100vw',
 			overflow: 'hidden'
 		}}>
-			{/* Use an <img> element to ensure the background image is loaded and visible */}
+			{/* background image */}
 			<img src="/main-bg.jpg" alt="background" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-			{/* intentionally minimal: only background for Inbox page */}
-			<div style={{ position: 'relative', zIndex: 2, display: 'flex', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
-				<h1 style={{ color: 'white', textShadow: '0 4px 18px rgba(0,0,0,0.6)', fontSize: '3rem', margin: 0 }}>
-					Hello — Inbox is working 🎉
-				</h1>
+			{/* top shaded bar */}
+			<div style={{ position: 'relative', zIndex: 2 }}>
+				<header style={{
+					width: '100%',
+					/* larger peach-pink header */
+					background: 'linear-gradient(90deg, rgba(255,209,187,0.98), rgba(255,159,128,0.92))',
+					color: '#fff',
+					padding: '36px 24px',
+					height: '140px',
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+					textAlign: 'center',
+					fontSize: '2rem',
+					fontWeight: 900,
+					boxShadow: '0 10px 30px rgba(0,0,0,0.20)'
+				}}>
+					<span style={{ width: '100%', display: 'inline-block' }}>Inbox</span>
+				</header>
+				{/* content area left intentionally blank */}
+				<div style={{ paddingTop: 18 }} />
 			</div>
 		</div>
 	);
