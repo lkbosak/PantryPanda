@@ -16,7 +16,7 @@ import AddItemPage from './AddItemPage';
 import RemoveItemPage from './RemoveItemPage';
 import BarcodeScanner from './BarcodeScanner';
 import NavBar from './NavBar';
-
+import Inbox from './Inbox';
 
 import './App.css';
 import { PantryProvider } from './PantryContext';
@@ -54,6 +54,7 @@ function App() {
           <Route path="/addItem" element={<AddItemPage />} />
           <Route path="/removeItem" element={<RemoveItemPage />} />
           <Route path="/scanner" element={<BarcodeScanner onDetected={(code) => console.log("Detected barcode:", code)} />} />
+          <Route path="/inbox" element={<Inbox />} />
         </Routes>
       </PantryProvider>
     </BrowserRouter>
