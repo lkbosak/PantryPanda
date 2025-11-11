@@ -7,23 +7,33 @@ import { UpdateGroceryListDto } from './dto/update-grocery-list.dto';
 export class GroceryListController {
   constructor(private readonly groceryListService: GroceryListService) {}
 
+  @Post('generate/:user_id')
+  generateFromPantry(@Param('user_id') user_id: number){
+    return this.groceryListService.generateFromPantry(+user_id);
+  }
+
   @Post()
-  create(@Param('id') id: number, @Body() createGroceryListDto: CreateGroceryListDto) {
-    return this.groceryListService.create(id, createGroceryListDto);
+  create(@Body() createGroceryListDto: CreateGroceryListDto) {
+    return this.groceryListService.create(createGroceryListDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') user_id: number) {
-    return this.groceryListService.findOne(+user_id);
+  @Get(':user_id')
+  findByUser(@Param('user_id') user_id: number){
+    return this.groceryListService.findByUser(+user_id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: number, @Body() updateGroceryListDto: UpdateGroceryListDto) {
+  @Get(':list_id')
+  findOne(@Param('list_id') list_id: number) {
+    return this.groceryListService.findOne(+list_id);
+  }
+
+  @Patch(':list_id')
+  update(@Param('list_id') id: number, @Body() updateGroceryListDto: UpdateGroceryListDto) {
     return this.groceryListService.update(+id, updateGroceryListDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.groceryListService.remove(+id);
+  @Delete(':list_id')
+  remove(@Param('list_id') list_id: number) {
+    return this.groceryListService.remove(+list_id);
   }
 }

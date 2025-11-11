@@ -8,6 +8,7 @@ import { User } from 'src/user/user.entity';
 import { UserInventory } from 'src/user-inventory/entities/user-inventory.entity';
 import { UserInventoryService } from 'src/user-inventory/user-inventory.service';
 import { Product } from 'src/product/entities/product.entity';
+import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class GroceryListService {
@@ -18,41 +19,160 @@ export class GroceryListService {
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
         @InjectRepository(UserInventory)
-        private readonly UserInventoryRepository: Repository<UserInventory>,
+        private readonly userInventoryRepository: Repository<UserInventory>,
+        @InjectRepository(Product)
+        private readonly productRepository: Repository<Product>
 
     ){}
 
-  async create(id: number, dto: CreateGroceryListDto) {
-    const pantryItems: UserInventory[] = await this.userInventoryService.findAll(id);
-    for(const item of pantryItems){
-      if(item.quantity < item.qPref){
-      const list = this.groceryRepository.create({
-        qToBuy: item.qPref - item.quantity,
-        isPurchased: false,
-        product: { product_id: dto.product_id },
-        user: { user_id: dto.user_id }
-       });
-      return await this.groceryRepository.save(list);
+  //creates the entry in the db manually by user
+  async create(dto: CreateGroceryListDto) {
+    // Verify user exists
+        const user = await this.userRepository.findOneBy({ user_id: dto.user_id });
+        if (!user) {
+            throw new NotFoundException(`User with ID ${dto.user_id} not found`);
+        }
+
+        // Verify product exists
+        const product = await this.productRepository.findOneBy({ product_id: dto.product_id });
+        if (!product) {
+            throw new NotFoundException(`Product with ID ${dto.product_id} not found`);
+        }
+
+        // Check if item already exists in grocery list (not purchased)
+        const existingItem = await this.groceryRepository.findOne({
+            where: {
+                user: { user_id: dto.user_id },
+                product: { product_id: dto.product_id },
+                isPurchased: false
+            }
+        });
+
+        if (existingItem) {
+            throw new BadRequestException('This product is already in your grocery list');
+        }
+
+        // Find the user's inventory for this product
+        const inventoryItem = await this.userInventoryRepository.findOne({
+            where: {
+                user: { user_id: dto.user_id },
+                product: { product_id: dto.product_id }
+            }
+        });
+
+        let qToBuy: number;
+
+        if (inventoryItem) {
+            // Calculate quantity to buy based on preference
+            if (inventoryItem.quantity < inventoryItem.qPref) {
+                qToBuy = inventoryItem.qPref - inventoryItem.quantity;
+            } else {
+                throw new BadRequestException('Product quantity is already at or above preference level');
+            }
+        } else {
+            // If not in inventory, use a default quantity or require it in the DTO
+            qToBuy = dto.qToBuy || 1;
+        }
+
+        // Create grocery list entry
+        const groceryItem = this.groceryRepository.create({
+            qToBuy: qToBuy,
+            isPurchased: false,
+            product: { product_id: dto.product_id },
+            user: { user_id: dto.user_id }
+        });
+
+        return await this.groceryRepository.save(groceryItem);
     }
+
+    //this is the logic that creates an entry based on quantity and preference
+    //This is what auto generates the list
+    async generateFromPantry(user_id: number) {
+        const user = await this.userRepository.findOneBy({ user_id });
+        if (!user) {
+            throw new NotFoundException(`User with ID ${user_id} not found`);
+        }
+
+        const pantryItems: UserInventory[] = await this.userInventoryService.findAll(user_id);
+        const createdItems: GroceryList[] = [];
+
+        for (const item of pantryItems) {
+            if (item.quantity < item.qPref) {
+                //Check if already in grocery list
+                const existingItem = await this.groceryRepository.findOne({
+                    where: {
+                        user: { user_id: user_id },
+                        product: { product_id: item.product.product_id },
+                        isPurchased: false
+                    }
+                });
+
+                if (!existingItem) {
+                    const groceryItem = this.groceryRepository.create({
+                        qToBuy: item.qPref - item.quantity,
+                        isPurchased: false,
+                        product: { product_id: item.product.product_id },
+                        user: { user_id: user_id }
+                    });
+                    const saved = await this.groceryRepository.save(groceryItem);
+                    createdItems.push(saved);
+                }
+            }
+        }
+
+        return createdItems;
     }
-  }
 
-  async findOne(user_id: number) {
-    return await this.groceryRepository.find({ relations: ['user', 'product'], where: { 
-      user: { user_id: user_id }}});
-  }
-
-  async update(id: number, updateGroceryListDto: UpdateGroceryListDto) {
-      await this.groceryRepository.update(id, updateGroceryListDto);
-      return this.groceryRepository.findOneBy({ list_id: id });
-  }
-
-  async remove(id: number) {
-      const result = await this.groceryRepository.delete(id)
-      if(result.affected === 0){
-          throw new NotFoundException;
+  //find all items for user that are not marked as purchased
+  //this can display the list for user
+  async findByUser(user_id: number) {
+      const user = await this.userRepository.findOneBy({ user_id });
+      if (!user) {
+          throw new NotFoundException(`User with ID ${user_id} not found`);
       }
-      return null;
+
+      return await this.groceryRepository.find({
+          relations: ['user', 'product'],
+          where: { user: { user_id: user_id } ,
+          isPurchased: false
+          },
+          order: { list_id: 'DESC' }
+      });
+  }
+
+  //find a specific item for a user
+  async findOne(list_id: number) {
+    const item = await this.groceryRepository.findOne({
+            relations: ['user', 'product'],
+            where: { list_id }
+        });
+        if (!item) {
+            throw new NotFoundException(`Grocery list item with ID ${list_id} not found`);
+        }
+        return item;
+  }
+
+  //update an entry(qToBuy, isPurchased)
+  //whenever a user buys items, update that entry setting isPurchased true
+  async update(list_id: number, updateGroceryListDto: UpdateGroceryListDto) {
+      const item = await this.groceryRepository.findOneBy({ list_id: list_id });
+        if (!item) {
+            throw new NotFoundException(`Grocery list item with ID ${list_id} not found`);
+        }
+        await this.groceryRepository.update(list_id, updateGroceryListDto);
+        return this.groceryRepository.findOne({
+            relations: ['user', 'product'],
+            where: { list_id: list_id }
+        });
+  }
+
+  //remove item from db
+  async remove(list_id: number) {
+      const result = await this.groceryRepository.delete(list_id);
+        if (result.affected === 0) {
+            throw new NotFoundException(`Grocery list item with ID ${list_id} not found`);
+        }
+        return null;  
   }
 }
 
