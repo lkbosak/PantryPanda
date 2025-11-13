@@ -20,9 +20,11 @@ export function Inbox(): React.ReactElement {
 				if (detail.action === 'add') {
 					const item = detail.item;
 					text = `${item.name} added (${item.quantity || 1}) to ${item.category || 'pantry'}`;
-				} else if (detail.action === 'remove') {
-					const item = detail.item;
-					text = `${item.name} removed from ${item.category || 'pantry'}`;
+						} else if (detail.action === 'remove') {
+							const item = detail.item;
+							const qty = item?.quantity ? ` (${item.quantity})` : '';
+							const remaining = typeof detail.remainingCount === 'number' ? ` — ${detail.remainingCount} left in ${item?.category || 'pantry'}` : '';
+							text = `${item?.name || 'Item'} removed${qty} from ${item?.category || 'pantry'}${remaining}`;
 				} else {
 					text = `Pantry changed`;
 				}
