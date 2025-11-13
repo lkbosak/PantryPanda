@@ -49,7 +49,7 @@ const AddItemPage: React.FC = () => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         qToBuy: item.minLevel ?? 1,
-                        isPurchased: true,
+                        isPurchased: false,
                         product_id: data.product_id,
                         user_id: user_id,
                     })
