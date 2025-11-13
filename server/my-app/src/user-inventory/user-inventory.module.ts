@@ -10,5 +10,6 @@ import { Product } from 'src/product/entities/product.entity';
   imports: [TypeOrmModule.forFeature([UserInventory, User, Product])],
   controllers: [UserInventoryController],
   providers: [UserInventoryService],
+  exports: [UserInventoryService],
 })
 export class UserInventoryModule {}
