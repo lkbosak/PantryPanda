@@ -74,12 +74,12 @@ export class GroceryListService {
             qToBuy = dto.qToBuy || 1;
         }
 
-        // Create grocery list entry
+        // Create grocery list entry using actual entities (avoid relying on partial relation objects)
         const groceryItem = this.groceryRepository.create({
             qToBuy: qToBuy,
             isPurchased: false,
-            product: { product_id: dto.product_id },
-            user: { user_id: dto.user_id }
+            product: product,
+            user: user,
         });
 
         return await this.groceryRepository.save(groceryItem);
@@ -108,11 +108,12 @@ export class GroceryListService {
                 });
 
                 if (!existingItem) {
+                    // use actual entities to ensure join columns are set
                     const groceryItem = this.groceryRepository.create({
                         qToBuy: item.qPref - item.quantity,
                         isPurchased: false,
-                        product: { product_id: item.product.product_id },
-                        user: { user_id: user_id }
+                        product: item.product,
+                        user: user,
                     });
                     const saved = await this.groceryRepository.save(groceryItem);
                     createdItems.push(saved);
