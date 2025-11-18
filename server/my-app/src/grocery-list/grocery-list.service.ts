@@ -88,6 +88,7 @@ export class GroceryListService {
     //this is the logic that creates an entry based on quantity and preference
     //This is what auto generates the list
     async generateFromPantry(user_id: number) {
+      console.log(user_id)
         const user = await this.userRepository.findOneBy({ user_id });
         if (!user) {
             throw new NotFoundException(`User with ID ${user_id} not found`);
