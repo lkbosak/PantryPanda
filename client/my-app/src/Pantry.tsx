@@ -35,23 +35,6 @@ const Pantry = () => {
                 }}>
             <h1 style={{ color: 'white' }}>Your Pantry</h1>
             <div style={{ width: '80%', margin: '0 auto' }}>
-                <button
-                    onClick={() => navigate(-1)}
-                    style={{
-                        position: 'relative',
-                        left: '10rem',// Align with the table
-                        padding: "0.5rem 1rem",
-                        backgroundColor: "#fb0000ff",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "4px",
-                        cursor: "pointer",
-                        fontWeight: "bold",
-                        marginBottom: '1rem', // Adjust spacing to match SpiceRack
-                    }}
-                >
-                    Back
-                </button>
                 <div style={{ 
                     display: 'grid', 
                     gridTemplateColumns: '1fr 1fr', 

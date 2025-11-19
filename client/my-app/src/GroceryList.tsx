@@ -71,7 +71,30 @@ const GroceryList: React.FC = () => {
 			paddingTop: '4rem',
 		}}>
 			<div style={{ width: '80%', background: 'rgba(255,255,255,0.95)', padding: '1rem', borderRadius: 8 }}>
-				<h2>Grocery List</h2>
+				<div style={{
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
+					flexWrap: 'wrap',
+					marginBottom: '1rem',
+				}}>
+					<h2 style={{ margin: 0 }}>Grocery List</h2>
+					<button
+						onClick={() => window.print()}
+						style={{
+							padding: '0.5rem 1rem',
+							backgroundColor: "#ff7eb491",
+							color: 'white',
+							border: 'none',
+							borderRadius: '4px',
+							cursor: 'pointer',
+							fontWeight: 'bold',
+						}}
+					>
+						Print / Export as PDF
+					</button>
+				</div>
+
 				{loading ? (
 					<div>Loading...</div>
 				) : error ? (
