@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 const sidebarStyle: React.CSSProperties = {
-  height: '100vh',
+  height: 'auto',
   width: '240px',
   background: 'rgba(240,240,240,0.7)',
   position: 'relative',
@@ -350,6 +350,8 @@ const UserSettings = () => {
       style={{
         display: 'flex',
         minHeight: '100vh',
+        height: 'auto',
+        overflow: 'auto',
         background: "linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)",
         backgroundImage: "url('/home-bg.jpg')",
         backgroundSize: 'cover',

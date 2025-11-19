@@ -6,6 +6,7 @@ import { UserInventory } from './entities/user-inventory.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/user.entity';
 import { Product } from 'src/product/entities/product.entity';
+import { GroceryList } from 'src/grocery-list/entities/grocery-list.entity';
 
 @Injectable()
 export class UserInventoryService {
@@ -16,6 +17,8 @@ export class UserInventoryService {
         private readonly userRepository: Repository<User>,
         @InjectRepository(Product)
         private readonly productRepository: Repository<Product>,
+        @InjectRepository(GroceryList)
+        private readonly groceryRepository: Repository<GroceryList>,
     ) {}
 
     // Return all inventory entries. Include related user and product for convenience.
@@ -88,10 +91,25 @@ async update(id: number, updateUserInventoryDto: UpdateUserInventoryDto) {
 }
 
 async remove(id: number) {
-    const result = await this.inventoryRepository.delete(id);
-    if (result.affected === 0) {
+    // load the inventory record so we know user and product to remove associated grocery rows
+    const inventory = await this.inventoryRepository.findOne({ where: { inventory_id: id }, relations: ['user', 'product'] });
+    if (!inventory) {
         throw new NotFoundException();
     }
+
+    // remove any non-purchased grocery list entries for this user/product
+    try {
+        await this.groceryRepository.delete({
+            user: { user_id: inventory.user.user_id },
+            product: { product_id: inventory.product.product_id },
+            isPurchased: false,
+        });
+    } catch (err) {
+        // if something odd happens, don't block inventory deletion; log and continue (Nest logger not injected here)
+    }
+
+    // delete the inventory item
+    await this.inventoryRepository.delete(id);
     return null;
 }
 }

@@ -60,6 +60,24 @@ const NavBar: React.FC<{ isLoggedIn: boolean; onLogout: () => void }> = ({
               Pantry
             </Link>
             <Link
+              to="/grocery-list"
+              style={{
+                fontWeight: "bold",
+                padding: "8px 12px",
+                borderRadius: "4px",
+                transition: "background 0.3s",
+                fontSize: '1rem'
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = "#ff7eb491")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = "transparent")
+              }
+            >
+              Grocery List
+            </Link>
+            <Link
               to="/settings"
               style={{
                 fontWeight: "bold",

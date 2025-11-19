@@ -19,6 +19,8 @@ const Fridge: React.FC = () => {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [deleting, setDeleting] = useState(false);
   const [loading, setLoading] = useState(true);
+  // Track quantity changes: map inventory_id -> adjusted quantity
+  const [quantityChanges, setQuantityChanges] = useState<Map<number, number>>(new Map());
 
   useEffect(() => {
     const fetchFridge = async () => {
@@ -56,7 +58,6 @@ const Fridge: React.FC = () => {
             minHeight: '100vh',
             display: 'flex',
             flexDirection: 'column',
-            //justifyContent: 'center',
             alignItems: 'center',
             paddingTop: '4rem',
         }}
@@ -80,30 +81,56 @@ const Fridge: React.FC = () => {
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
           <button
             onClick={async () => {
-              // delete selected
-              if (selectedIds.size === 0) return alert('No items selected');
-              if (!window.confirm(`Delete ${selectedIds.size} selected item(s)?`)) return;
+              // Propagate changes: update modified items or delete if qty=0
+              const changedIds = Array.from(quantityChanges.keys());
+              if (changedIds.length === 0) return alert('No changes to confirm');
+              
+              if (!window.confirm(`Confirm changes for ${changedIds.length} item(s)?`)) return;
               setDeleting(true);
               try {
-                const ids = Array.from(selectedIds);
-                await Promise.all(ids.map(id => fetch(`/api/user-inventory/${id}`, { method: 'DELETE' }).then(res => {
-                  if (!res.ok) throw new Error(`Failed to delete ${id}`);
-                })));
-                // remove from UI
-                setPantryItems(prev => prev.filter(item => !selectedIds.has(item.inventory_id)));
+                const promises = changedIds.map(async (id) => {
+                  const newQty = quantityChanges.get(id)!;
+                  if (newQty === 0) {
+                    // Delete item
+                    const res = await fetch(`/api/user-inventory/${id}`, { method: 'DELETE' });
+                    if (!res.ok) throw new Error(`Failed to delete ${id}`);
+                  } else {
+                    // Update item
+                    const res = await fetch(`/api/user-inventory/${id}`, {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ quantity: newQty })
+                    });
+                    if (!res.ok) throw new Error(`Failed to update ${id}`);
+                  }
+                });
+                await Promise.all(promises);
+                
+                // Update UI: remove deleted items, update quantities for changed items
+                setPantryItems(prev => prev
+                  .filter(item => {
+                    const newQty = quantityChanges.get(item.inventory_id);
+                    return newQty === undefined || newQty > 0;
+                  })
+                  .map(item => {
+                    const newQty = quantityChanges.get(item.inventory_id);
+                    return newQty !== undefined ? { ...item, quantity: newQty } : item;
+                  })
+                );
+                setQuantityChanges(new Map());
                 setSelectedIds(new Set());
-                alert('Selected items deleted');
+                alert('Changes confirmed');
               } catch (err) {
-                console.error('Delete error', err);
-                alert('Failed to delete some items. See console for details.');
+                console.error('Update error', err);
+                alert('Failed to confirm changes. See console for details.');
               } finally {
                 setDeleting(false);
               }
             }}
-            disabled={deleting || selectedIds.size === 0}
+            disabled={deleting || quantityChanges.size === 0}
             style={{ padding: '0.5rem 0.75rem', marginLeft: 8 }}
           >
-            {deleting ? 'Deleting...' : 'Delete selected'}
+            {deleting ? 'Processing...' : 'Confirm changes'}
           </button>
         </div>
         <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', overflow: 'hidden' }}>
@@ -119,6 +146,9 @@ const Fridge: React.FC = () => {
               Quantity
             </th>
             <th style={{ border: '1px solid #ddd', padding: '12px', backgroundColor: '#f2f2f2', textAlign: 'left' }}>
+              Adjust
+            </th>
+            <th style={{ border: '1px solid #ddd', padding: '12px', backgroundColor: '#f2f2f2', textAlign: 'left' }}>
               Expiration Date
             </th>
             <th style={{ border: '1px solid #ddd', padding: '12px', backgroundColor: '#f2f2f2', textAlign: 'left' }}>
@@ -127,7 +157,13 @@ const Fridge: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {fridgeItems.map(item => (
+          {fridgeItems.map(item => {
+            const originalQty = item.quantity;
+            const currentQty = quantityChanges.has(item.inventory_id) 
+              ? quantityChanges.get(item.inventory_id)! 
+              : originalQty;
+            
+            return (
             <tr key={item.inventory_id}>
               <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
                 <input
@@ -146,7 +182,44 @@ const Fridge: React.FC = () => {
                 {item.product?.product_name ?? 'Unknown product'}
               </td>
               <td style={{ border: '1px solid #ddd', padding: '12px' }}>
-                {item.quantity} {item.unit || ''}
+                {currentQty} {item.unit || ''}
+              </td>
+              <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
+                <button
+                  onClick={() => {
+                    const newQty = Math.max(0, currentQty - 1);
+                    setQuantityChanges(prev => new Map(prev).set(item.inventory_id, newQty));
+                  }}
+                  disabled={currentQty === 0}
+                  style={{ 
+                    padding: '0.25rem 0.5rem', 
+                    marginRight: '0.5rem',
+                    cursor: currentQty === 0 ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  −
+                </button>
+                <button
+                  onClick={() => {
+                    const newQty = Math.min(originalQty, currentQty + 1);
+                    setQuantityChanges(prev => {
+                      const next = new Map(prev);
+                      if (newQty === originalQty) {
+                        next.delete(item.inventory_id);
+                      } else {
+                        next.set(item.inventory_id, newQty);
+                      }
+                      return next;
+                    });
+                  }}
+                  disabled={currentQty >= originalQty}
+                  style={{ 
+                    padding: '0.25rem 0.5rem',
+                    cursor: currentQty >= originalQty ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  +
+                </button>
               </td>
               <td style={{ border: '1px solid #ddd', padding: '12px' }}>
                 {item.expiration_date ? new Date(item.expiration_date).toLocaleDateString() : 'N/A'}
@@ -155,7 +228,8 @@ const Fridge: React.FC = () => {
                 {item.date_added ? new Date(item.date_added).toLocaleDateString() : 'N/A'}
               </td>
             </tr>
-          ))}
+            );
+          })}
         </tbody>
       </table>
                  {/* <ul style={{ background: 'white', color: 'black', borderRadius: '8px', padding: '1rem' }}>
