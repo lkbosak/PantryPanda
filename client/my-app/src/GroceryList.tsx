@@ -99,7 +99,7 @@ const GroceryList: React.FC = () => {
 							onClick={() => window.print()}
 							style={{
 								padding: '0.5rem 1rem',
-								backgroundColor: "#ff7eb491",
+								backgroundColor: "#ff7eb4ff",
 								color: 'white',
 								border: 'none',
 								borderRadius: '4px',
