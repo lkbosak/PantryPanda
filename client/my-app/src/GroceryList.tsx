@@ -8,6 +8,7 @@ const GroceryList: React.FC = () => {
 	const [items, setItems] = useState<Array<{ list_id: number; productName: string; remaining: number }>>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [refreshKey, setRefreshKey] = useState(0);
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -57,7 +58,7 @@ const GroceryList: React.FC = () => {
 		};
 
 		load();
-	}, []);
+	}, [refreshKey]);
 
 	return (
 		<div style={{
@@ -79,20 +80,36 @@ const GroceryList: React.FC = () => {
 					marginBottom: '1rem',
 				}}>
 					<h2 style={{ margin: 0 }}>Grocery List</h2>
-					<button
-						onClick={() => window.print()}
-						style={{
-							padding: '0.5rem 1rem',
-							backgroundColor: "#ff7eb491",
-							color: 'white',
-							border: 'none',
-							borderRadius: '4px',
-							cursor: 'pointer',
-							fontWeight: 'bold',
-						}}
-					>
-						Print / Export as PDF
-					</button>
+					<div style={{ display: 'flex', gap: '0.5rem' }}>
+						<button
+							onClick={() => setRefreshKey(k => k + 1)}
+							style={{
+								padding: '0.5rem 1rem',
+								backgroundColor: "#4CAF50",
+								color: 'white',
+								border: 'none',
+								borderRadius: '4px',
+								cursor: 'pointer',
+								fontWeight: 'bold',
+							}}
+						>
+							Refresh
+						</button>
+						<button
+							onClick={() => window.print()}
+							style={{
+								padding: '0.5rem 1rem',
+								backgroundColor: "#ff7eb491",
+								color: 'white',
+								border: 'none',
+								borderRadius: '4px',
+								cursor: 'pointer',
+								fontWeight: 'bold',
+							}}
+						>
+							Print / Export as PDF
+						</button>
+					</div>
 				</div>
 
 				{loading ? (

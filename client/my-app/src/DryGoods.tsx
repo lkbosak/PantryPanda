@@ -162,7 +162,7 @@ const DryGoods: React.FC = () => {
         <thead>
           <tr>
             <th style={{ border: '1px solid #ddd', padding: '12px', backgroundColor: '#f2f2f2', textAlign: 'left' }}>
-              Select
+              Delete
             </th>
             <th style={{ border: '1px solid #ddd', padding: '12px', backgroundColor: '#f2f2f2', textAlign: 'left' }}>
               Product Name
