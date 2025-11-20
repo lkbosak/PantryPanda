@@ -81,40 +81,62 @@ const Fridge: React.FC = () => {
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
           <button
             onClick={async () => {
-              // Propagate changes: update modified items or delete if qty=0
+              // Collect all items to process: selected items (to delete) + quantity-changed items
+              const itemsToDelete = new Set(selectedIds);
               const changedIds = Array.from(quantityChanges.keys());
-              if (changedIds.length === 0) return alert('No changes to confirm');
               
-              if (!window.confirm(`Confirm changes for ${changedIds.length} item(s)?`)) return;
+              // Add items with qty=0 to delete set
+              changedIds.forEach(id => {
+                if (quantityChanges.get(id) === 0) {
+                  itemsToDelete.add(id);
+                }
+              });
+              
+              // Items to update (qty changed but not 0)
+              const itemsToUpdate = changedIds.filter(id => {
+                const newQty = quantityChanges.get(id)!;
+                return newQty > 0;
+              });
+              
+              const totalChanges = itemsToDelete.size + itemsToUpdate.length;
+              if (totalChanges === 0) return alert('No changes to confirm');
+              
+              if (!window.confirm(`Confirm changes for ${totalChanges} item(s)?`)) return;
               setDeleting(true);
               try {
-                const promises = changedIds.map(async (id) => {
+                const promises: Promise<void>[] = [];
+                
+                // Delete items (selected or qty=0)
+                itemsToDelete.forEach(id => {
+                  promises.push(
+                    fetch(`/api/user-inventory/${id}`, { method: 'DELETE' }).then(res => {
+                      if (!res.ok) throw new Error(`Failed to delete ${id}`);
+                    })
+                  );
+                });
+                
+                // Update items (qty changed but not 0)
+                itemsToUpdate.forEach(id => {
                   const newQty = quantityChanges.get(id)!;
-                  if (newQty === 0) {
-                    // Delete item
-                    const res = await fetch(`/api/user-inventory/${id}`, { method: 'DELETE' });
-                    if (!res.ok) throw new Error(`Failed to delete ${id}`);
-                  } else {
-                    // Update item
-                    const res = await fetch(`/api/user-inventory/${id}`, {
+                  promises.push(
+                    fetch(`/api/user-inventory/${id}`, {
                       method: 'PATCH',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ quantity: newQty })
-                    });
-                    if (!res.ok) throw new Error(`Failed to update ${id}`);
-                  }
+                    }).then(res => {
+                      if (!res.ok) throw new Error(`Failed to update ${id}`);
+                    })
+                  );
                 });
+                
                 await Promise.all(promises);
                 
                 // Update UI: remove deleted items, update quantities for changed items
                 setPantryItems(prev => prev
-                  .filter(item => {
-                    const newQty = quantityChanges.get(item.inventory_id);
-                    return newQty === undefined || newQty > 0;
-                  })
+                  .filter(item => !itemsToDelete.has(item.inventory_id))
                   .map(item => {
                     const newQty = quantityChanges.get(item.inventory_id);
-                    return newQty !== undefined ? { ...item, quantity: newQty } : item;
+                    return newQty !== undefined && newQty > 0 ? { ...item, quantity: newQty } : item;
                   })
                 );
                 setQuantityChanges(new Map());
@@ -127,7 +149,7 @@ const Fridge: React.FC = () => {
                 setDeleting(false);
               }
             }}
-            disabled={deleting || quantityChanges.size === 0}
+            disabled={deleting || (quantityChanges.size === 0 && selectedIds.size === 0)}
             style={{ padding: '0.5rem 0.75rem', marginLeft: 8 }}
           >
             {deleting ? 'Processing...' : 'Confirm changes'}
