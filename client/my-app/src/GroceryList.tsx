@@ -106,6 +106,12 @@ const GroceryList: React.FC = () => {
 								cursor: 'pointer',
 								fontWeight: 'bold',
 							}}
+							onMouseEnter={(e) =>
+                				(e.currentTarget.style.background = "#ff7eb48f")
+             		 		}
+              				onMouseLeave={(e) =>
+                				(e.currentTarget.style.background = "#ff7eb4ff")
+              				}
 						>
 							Print / Export as PDF
 						</button>
