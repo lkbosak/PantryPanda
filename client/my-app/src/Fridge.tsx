@@ -204,7 +204,7 @@ const Fridge: React.FC = () => {
                 {item.product?.product_name ?? 'Unknown product'}
               </td>
               <td style={{ border: '1px solid #ddd', padding: '12px' }}>
-                {currentQty} {item.unit || ''}
+                {currentQty} 
               </td>
               <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
                 <button
