@@ -148,7 +148,7 @@ const DryGoods: React.FC = () => {
                 {item.product?.product_name ?? 'Unknown product'}
               </td>
               <td style={{ border: '1px solid #ddd', padding: '12px' }}>
-                {item.quantity} {item.unit || ''}
+                {item.quantity} 
               </td>
               <td style={{ border: '1px solid #ddd', padding: '12px' }}>
                 {item.expiration_date ? new Date(item.expiration_date).toLocaleDateString() : 'N/A'}
