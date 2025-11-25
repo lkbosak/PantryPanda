@@ -103,25 +103,34 @@ const BarcodeScanner: React.FC<Props> = ({ onDetected, autoStart = false }) => {
           // attempt to extract a friendly name from Nutritionix lookup
           let friendlyName: string | undefined = undefined;
           if (onDetected) onDetected({ code: text, name: friendlyName });
-
-          // Try to call Nutritionix and then backend
           try {
-            // Nutritionix call
-            const nxRes = await fetch(`https://trackapi.nutritionix.com/v2/search/item/?upc=${text}`, {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'x-app-id': '395535ef',
-                'x-app-key': 'df0b14dcc38d529aaf9a70effd90189f'
+            // Open Food Facts call
+            const offRes = await fetch(
+              `https://world.openfoodfacts.org/api/v0/product/${encodeURIComponent(text)}.json`,
+              {
+                method: 'GET',
               }
-            });
-            const nxData = await nxRes.json().catch(() => null);
-            const brandName = nxData?.foods?.[0]?.brand_name || 'Unknown';
-            const foodName = nxData?.foods?.[0]?.food_name || 'Unknown';
-            // once we have a friendly name, notify again by setting globalThis and (optionally) calling onDetected
-            friendlyName = `${brandName} ${foodName}`;
+            );
+
+            const offData = await offRes.json().catch(() => null);
+
+            // OFF returns status === 1 when a product is found
+            const product = offData?.status === 1 ? offData.product : null;
+
+            // OFF uses `brands` and `product_name`
+            const rawBrand = product?.brands || '';
+            const brandName =
+              rawBrand
+                .split(/[|,]/)[0]  // brands can be pipe or comma separated
+                ?.trim() || 'Unknown';
+
+            const foodName = product?.product_name || 'Unknown';
+
+            // once we have a friendly name, notify again
+            friendlyName = `${brandName} ${foodName}`.trim();
             if (onDetected) onDetected({ code: text, name: friendlyName });
-            setResultText(`Brand: ${brandName} ${foodName} UPC:${text}`);
+
+            setResultText(`Brand: ${brandName} ${foodName} UPC: ${text}`);
 
             // @ts-ignore
             globalThis.scannedFood = { upc: text, brandName, foodName };
