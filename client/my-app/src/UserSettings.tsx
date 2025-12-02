@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 const sidebarStyle: React.CSSProperties = {
-  height: '100vh',
+  height: 'auto',
   width: '240px',
   background: 'rgba(240,240,240,0.7)',
   position: 'relative',
@@ -73,12 +73,13 @@ const UserSettings = () => {
   };
 
   const confirmResetPassword = async () => {
+    const user_id = localStorage.getItem('user_id')
     try {
       // Call backend to update password
-  const response = await fetch('https://pantrypanda-backend.onrender.com/users/reset-password', {
+  const response = await fetch(`/api/users/${user_id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ currentPassword, newPassword }),
+        body: JSON.stringify({ password: newPassword }),
         credentials: 'include',
       });
       if (response.ok) {
@@ -136,9 +137,10 @@ const UserSettings = () => {
   };
 
   const confirmEmailChange = async () => {
+    const user_id = localStorage.getItem('user_id')
     try {
       // Call backend to update email
-  const response = await fetch('https://pantrypanda-backend.onrender.com/users/update-email', {
+  const response = await fetch(`/api/users/${user_id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: newEmail }),
@@ -215,14 +217,10 @@ const UserSettings = () => {
 
       const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
 
-      const url = userId
-        ? `https://pantrypanda-backend.onrender.com/users/${encodeURIComponent(String(userId))}`
-        : 'https://pantrypanda-backend.onrender.com/users/delete-account';
-
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      const response = await fetch(url, {
+      const response = await fetch(`/api/users/${storedId}`, {
         method: 'DELETE',
         headers,
         // send id in body only if endpoint expects it
@@ -294,9 +292,10 @@ const UserSettings = () => {
   };
 
   const confirmUsernameChange = async () => {
+    const user_id = localStorage.getItem('user_id')
     try {
       // Call backend to update username
-  const response = await fetch('https://pantrypanda-backend.onrender.com/users/update-username', {
+  const response = await fetch(`/api/users/${user_id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: newUsername }),
@@ -351,6 +350,8 @@ const UserSettings = () => {
       style={{
         display: 'flex',
         minHeight: '100vh',
+        height: 'auto',
+        overflow: 'auto',
         background: "linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)",
         backgroundImage: "url('/home-bg.jpg')",
         backgroundSize: 'cover',

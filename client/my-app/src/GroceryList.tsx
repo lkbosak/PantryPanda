@@ -8,7 +8,7 @@ const GroceryList: React.FC = () => {
 	const [items, setItems] = useState<Array<{ list_id: number; productName: string; remaining: number }>>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const navigate = useNavigate();
+	const [refreshKey, setRefreshKey] = useState(0);
 
 	useEffect(() => {
 		const load = async () => {
@@ -57,7 +57,7 @@ const GroceryList: React.FC = () => {
 		};
 
 		load();
-	}, []);
+	}, [refreshKey]);
 
 	return (
 		<div style={{
@@ -71,7 +71,52 @@ const GroceryList: React.FC = () => {
 			paddingTop: '4rem',
 		}}>
 			<div style={{ width: '80%', background: 'rgba(255,255,255,0.95)', padding: '1rem', borderRadius: 8 }}>
-				<h2>Grocery List</h2>
+				<div style={{
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
+					flexWrap: 'wrap',
+					marginBottom: '1rem',
+				}}>
+					<h2 style={{ margin: 0 }}>Grocery List</h2>
+					<div style={{ display: 'flex', gap: '0.5rem' }}>
+						<button
+							onClick={() => setRefreshKey(k => k + 1)}
+							style={{
+								padding: '0.5rem 1rem',
+								backgroundColor: "#4CAF50",
+								color: 'white',
+								border: 'none',
+								borderRadius: '4px',
+								cursor: 'pointer',
+								fontWeight: 'bold',
+							}}
+						>
+							Refresh
+						</button>
+						<button
+							onClick={() => window.print()}
+							style={{
+								padding: '0.5rem 1rem',
+								backgroundColor: "#ff7eb4ff",
+								color: 'white',
+								border: 'none',
+								borderRadius: '4px',
+								cursor: 'pointer',
+								fontWeight: 'bold',
+							}}
+							onMouseEnter={(e) =>
+                				(e.currentTarget.style.background = "#ff7eb48f")
+             		 		}
+              				onMouseLeave={(e) =>
+                				(e.currentTarget.style.background = "#ff7eb4ff")
+              				}
+						>
+							Print / Export as PDF
+						</button>
+					</div>
+				</div>
+
 				{loading ? (
 					<div>Loading...</div>
 				) : error ? (
