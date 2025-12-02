@@ -24,6 +24,7 @@ export const PantryProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       try {
         const categoryCount = next.filter(i => i.category === item.category).length;
         // Dispatch a global event so other parts of the app (Inbox) can show notifications
+        console.log('🚀 PantryContext: Dispatching pantry-change event (ADD):', { action: 'add', item, categoryCount });
         window.dispatchEvent(new CustomEvent('pantry-change', { detail: { action: 'add', item, categoryCount } }));
         // Also persist notification to backend if possible
         (async () => {
@@ -87,6 +88,7 @@ export const PantryProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         // dispatch an event per removed item
         toRemove.forEach(removed => {
           const remainingCount = next.filter(i => i.category === removed.category).length;
+          console.log('🚀 PantryContext: Dispatching pantry-change event (REMOVE):', { action: 'remove', item: removed, remainingCount });
           window.dispatchEvent(new CustomEvent('pantry-change', { detail: { action: 'remove', item: removed, remainingCount } }));
         });
         // Persist removal notifications to backend

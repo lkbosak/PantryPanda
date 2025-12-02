@@ -4,41 +4,99 @@ type Notification = {
 	id: string;
 	text: string;
 	ts: number;
+	read: boolean;
+	action: 'add' | 'remove';
+	itemName: string;
+	category: string;
+	quantity?: number;
+	remainingCount?: number;
 };
 
 export function Inbox(): React.ReactElement {
-		const [notifs, setNotifs] = useState<Notification[]>([]);
+		const [notifs, setNotifs] = useState<Notification[]>(() => {
+			// Load notifications from localStorage on mount
+			try {
+				const saved = localStorage.getItem('inbox-notifications');
+				if (saved) {
+					return JSON.parse(saved);
+				}
+			} catch (e) {
+				console.error('Failed to load notifications:', e);
+			}
+			return [];
+		});
 		const [toast, setToast] = useState<Notification | null>(null);
+
+		// Save notifications to localStorage whenever they change
+		useEffect(() => {
+			try {
+				localStorage.setItem('inbox-notifications', JSON.stringify(notifs));
+			} catch (e) {
+				console.error('Failed to save notifications:', e);
+			}
+		}, [notifs]);
+
+		// Toggle read/unread status when notification is clicked
+		const toggleRead = (id: string) => {
+			setNotifs(prev => prev.map(n => n.id === id ? { ...n, read: !n.read } : n));
+		};
 
 	useEffect(() => {
 		const handler = (e: Event) => {
 			try {
 				const detail = (e as CustomEvent).detail as any;
 				if (!detail) return;
+				
+				console.log('📬 Inbox received pantry-change event:', detail);
+				
 				const when = Date.now();
 				let text = '';
+				let action: 'add' | 'remove' = 'add';
+				const item = detail.item || {};
+				const itemName = item.name || 'Item';
+				const category = item.category || 'pantry';
+				const quantity = item.quantity;
+				const remainingCount = detail.remainingCount;
+
 				if (detail.action === 'add') {
-					const item = detail.item;
-					text = `${item.name} added (${item.quantity || 1}) to ${item.category || 'pantry'}`;
+					action = 'add';
+					text = `${itemName} added (${quantity || 1}) to ${category}`;
 						} else if (detail.action === 'remove') {
-							const item = detail.item;
-							const qty = item?.quantity ? ` (${item.quantity})` : '';
-							const remaining = typeof detail.remainingCount === 'number' ? ` — ${detail.remainingCount} left in ${item?.category || 'pantry'}` : '';
-							text = `${item?.name || 'Item'} removed${qty} from ${item?.category || 'pantry'}${remaining}`;
+							action = 'remove';
+							const qty = quantity ? ` (${quantity})` : '';
+							const remaining = typeof remainingCount === 'number' ? ` — ${remainingCount} left in ${category}` : '';
+							text = `${itemName} removed${qty} from ${category}${remaining}`;
 				} else {
 					text = `Pantry changed`;
 				}
-			const notif: Notification = { id: String(when) + Math.random().toString(36).slice(2,6), text, ts: when };
+			const notif: Notification = { 
+				id: String(when) + Math.random().toString(36).slice(2,6), 
+				text, 
+				ts: when,
+				read: false,
+				action,
+				itemName,
+				category,
+				quantity,
+				remainingCount
+			};
+			
+			console.log('✅ Creating notification:', notif);
+			
 			setNotifs((prev: Notification[]) => [notif, ...prev]);
 				setToast(notif);
 				setTimeout(() => setToast(null), 4000);
 			} catch (err) {
-				// ignore
+				console.error('❌ Failed to create notification:', err);
 			}
 		};
 
+		console.log('🎧 Inbox mounted - listening for pantry-change events');
 		window.addEventListener('pantry-change', handler as EventListener);
-		return () => window.removeEventListener('pantry-change', handler as EventListener);
+		return () => {
+			console.log('👋 Inbox unmounting - removing event listener');
+			window.removeEventListener('pantry-change', handler as EventListener);
+		};
 	}, []);
 
 	return (
@@ -77,9 +135,37 @@ export function Inbox(): React.ReactElement {
 											) : (
 												<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
 													{notifs.map((n: Notification) => (
-														<li key={n.id} style={{ padding: '12px 8px', borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
-															<div style={{ fontWeight: 700 }}>{n.text}</div>
-															<div style={{ color: '#888', fontSize: 12 }}>{new Date(n.ts).toLocaleString()}</div>
+														<li 
+															key={n.id} 
+															onClick={() => toggleRead(n.id)}
+															style={{ 
+																padding: '12px 8px', 
+																borderBottom: '1px solid rgba(0,0,0,0.04)',
+																cursor: 'pointer',
+																backgroundColor: n.read ? 'transparent' : 'rgba(255,209,187,0.15)',
+																borderLeft: n.read ? '4px solid transparent' : '4px solid rgba(255,159,128,0.8)',
+																transition: 'all 0.2s ease',
+																position: 'relative'
+															}}
+														>
+															<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+																<div style={{ flex: 1 }}>
+																	<div style={{ fontWeight: n.read ? 400 : 700, color: n.read ? '#666' : '#333' }}>
+																		{n.text}
+																	</div>
+																	<div style={{ color: '#888', fontSize: 12, marginTop: 4 }}>
+																		{new Date(n.ts).toLocaleString()}
+																	</div>
+																</div>
+																<div style={{ 
+																	width: 10, 
+																	height: 10, 
+																	borderRadius: '50%', 
+																	backgroundColor: n.read ? '#ccc' : '#ff9f80',
+																	marginLeft: 12,
+																	flexShrink: 0
+																}} />
+															</div>
 														</li>
 													))}
 												</ul>
