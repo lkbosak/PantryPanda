@@ -359,11 +359,16 @@ const UserSettings = () => {
       });
 
       if (response.ok) {
+        console.log('✅ Account permanently deleted from server');
+        
         // Remove all user info from localStorage
         try {
           // Record a local marker so this client will block sign-in attempts for this account
           const userRaw = localStorage.getItem('mockUser');
+          const userData = localStorage.getItem('user_data');
           let identifiers: string[] = [];
+          
+          // Get identifiers from mockUser
           if (userRaw) {
             try {
               const u = JSON.parse(userRaw);
@@ -375,6 +380,18 @@ const UserSettings = () => {
               identifiers.push(userRaw);
             }
           }
+          
+          // Get identifiers from user_data
+          if (userData) {
+            try {
+              const u = JSON.parse(userData);
+              if (u.id) identifiers.push(String(u.id));
+              if (u.user_id) identifiers.push(String(u.user_id));
+              if (u.username) identifiers.push(String(u.username));
+              if (u.email) identifiers.push(String(u.email));
+            } catch {}
+          }
+          
           const stored = localStorage.getItem('deleted_accounts');
           let arr: string[] = [];
           try { arr = stored ? JSON.parse(stored) : []; } catch { arr = []; }
@@ -382,17 +399,30 @@ const UserSettings = () => {
             if (id && !arr.includes(id)) arr.push(id);
           });
           localStorage.setItem('deleted_accounts', JSON.stringify(arr));
+          
+          console.log('🚫 Blocked identifiers from future login:', identifiers);
         } catch (e) {
           // ignore localStorage errors
         }
 
-        // remove session and user info
+        // COMPLETELY REMOVE ALL USER DATA FROM LOCAL STORAGE
+        console.log('🧹 Scrubbing all user data from localStorage...');
         localStorage.removeItem('mockUser');
+        localStorage.removeItem('user_data');
         localStorage.removeItem('mockUserLoggedIn');
         localStorage.removeItem('usernameChangeCount');
         localStorage.removeItem('emailChangeCount');
         localStorage.removeItem('user_id');
         localStorage.removeItem('auth_token');
+        localStorage.removeItem('profilePicture');
+        localStorage.removeItem('pushNotifications');
+        localStorage.removeItem('emailNotifications');
+        localStorage.removeItem('smsNotifications');
+        localStorage.removeItem('inAppNotifications');
+        localStorage.removeItem('phoneNumber');
+        localStorage.removeItem('notifications');
+        
+        console.log('✅ Account completely scrubbed. User must create a new account to access the system.');
       } else {
         // Optionally read error message from backend
         const text = await response.text().catch(() => '');
@@ -1086,13 +1116,40 @@ const UserSettings = () => {
                 padding: '32px',
                 boxShadow: '0 2px 16px rgba(0,0,0,0.18)',
                 textAlign: 'center',
-                minWidth: '320px',
+                minWidth: '380px',
+                maxWidth: '450px',
               }}>
-                <div style={{fontSize: '1.2rem', color: '#d32f2f', fontWeight: 700, marginBottom: '18px'}}>
-                  Are you sure? Deleting your account is <span style={{textDecoration: 'underline'}}>permanent</span>.
+                <div style={{fontSize: '1.4rem', color: '#d32f2f', fontWeight: 700, marginBottom: '18px'}}>
+                  ⚠️ PERMANENT DELETION ⚠️
                 </div>
-                <button onClick={confirmDelete} style={{marginRight: '18px', padding: '10px 24px', background: '#d32f2f', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 700, cursor: 'pointer'}}>Yes, Delete</button>
-                <button onClick={cancelDelete} style={{padding: '10px 24px', background: '#eee', color: '#222', border: 'none', borderRadius: '6px', fontWeight: 500, cursor: 'pointer'}}>Cancel</button>
+                <div style={{fontSize: '1.1rem', color: '#d32f2f', fontWeight: 600, marginBottom: '16px', textDecoration: 'underline'}}>
+                  Are you absolutely sure?
+                </div>
+                <div style={{
+                  fontSize: '0.95rem', 
+                  color: '#333', 
+                  marginBottom: '20px', 
+                  lineHeight: '1.6',
+                  textAlign: 'left',
+                  padding: '16px',
+                  background: '#fff3e0',
+                  borderRadius: '8px',
+                  border: '2px solid #ff9800',
+                }}>
+                  <strong style={{display: 'block', marginBottom: '8px', color: '#d32f2f'}}>This action will:</strong>
+                  <ul style={{margin: 0, paddingLeft: '20px', textAlign: 'left'}}>
+                    <li><strong>Permanently delete</strong> your username</li>
+                    <li><strong>Permanently delete</strong> your password</li>
+                    <li><strong>Permanently delete</strong> your email</li>
+                    <li><strong>Permanently delete</strong> all account data</li>
+                    <li><strong>Cannot be undone or recovered</strong></li>
+                  </ul>
+                  <div style={{marginTop: '12px', fontWeight: 600, color: '#d32f2f'}}>
+                    You will need to create a completely new account to use this system again.
+                  </div>
+                </div>
+                <button onClick={confirmDelete} style={{marginRight: '18px', padding: '12px 28px', background: '#d32f2f', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 700, cursor: 'pointer', fontSize: '1rem'}}>Yes, Permanently Delete</button>
+                <button onClick={cancelDelete} style={{padding: '12px 28px', background: '#eee', color: '#222', border: 'none', borderRadius: '6px', fontWeight: 600, cursor: 'pointer', fontSize: '1rem'}}>Cancel</button>
               </div>
             </div>
           )}

@@ -32,11 +32,34 @@ export class UserService {
     }
 
     async remove(id: number) {
-        const result = await this.usersRepository.delete(id)
-        if(result.affected === 0){
-            throw new NotFoundException;
+        console.log('Attempting to permanently delete user account:', id);
+        
+        // First verify the user exists
+        const user = await this.usersRepository.findOneBy({ user_id: id });
+        if (!user) {
+            console.warn('User not found for deletion:', id);
+            throw new NotFoundException('User not found');
         }
-        return null;
+
+        console.log('User found, permanently deleting:', { 
+            user_id: user.user_id, 
+            username: user.username, 
+            email: user.email 
+        });
+
+        // Permanently delete the user record from the database
+        // This removes username, password, email, and all other user data
+        const result = await this.usersRepository.delete(id);
+        
+        if(result.affected === 0){
+            console.error('Failed to delete user:', id);
+            throw new NotFoundException('Failed to delete user');
+        }
+        
+        console.log('User account permanently deleted and scrubbed from database:', id);
+        console.log('Username, password, and email are now completely removed and inaccessible');
+        
+        return { message: 'Account permanently deleted', deleted: true };
     }
 
 async login(loginUserDto: LoginUserDto): Promise<Partial<User>> {
