@@ -3,6 +3,8 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { ChangeUsernameDto } from './dto/change-username.dto';
 
 @Controller('users')
 export class UserController {
@@ -39,5 +41,19 @@ export class UserController {
     // eslint-disable-next-line no-console
     console.log('Login attempt:', { username: loginUserDto.username, email: loginUserDto.email });
     return this.userService.login(loginUserDto);
+  }
+
+  @Post('change-password')
+  async changePassword(@Body() changePasswordDto: ChangePasswordDto) {
+    // eslint-disable-next-line no-console
+    console.log('Password change request for user:', changePasswordDto.user_id);
+    return this.userService.changePassword(changePasswordDto);
+  }
+
+  @Post('change-username')
+  async changeUsername(@Body() changeUsernameDto: ChangeUsernameDto) {
+    // eslint-disable-next-line no-console
+    console.log('Username change request for user:', changeUsernameDto.user_id);
+    return this.userService.changeUsername(changeUsernameDto);
   }
 }

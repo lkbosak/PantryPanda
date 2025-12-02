@@ -66,6 +66,23 @@ const UserSettings = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadMsg, setUploadMsg] = useState('');
 
+  // Notification preferences state
+  const [pushNotifications, setPushNotifications] = useState(() => {
+    return localStorage.getItem('push_notifications') === 'true';
+  });
+  const [emailNotifications, setEmailNotifications] = useState(() => {
+    return localStorage.getItem('email_notifications') === 'true';
+  });
+  const [smsNotifications, setSmsNotifications] = useState(() => {
+    return localStorage.getItem('sms_notifications') === 'true';
+  });
+  const [inAppNotifications, setInAppNotifications] = useState(() => {
+    return localStorage.getItem('in_app_notifications') !== 'false'; // default true
+  });
+  const [phoneNumber, setPhoneNumber] = useState(() => {
+    return localStorage.getItem('notification_phone_number') || '';
+  });
+
   // Load profile picture on mount
   useEffect(() => {
     const savedProfilePic = localStorage.getItem('profile_picture');
@@ -130,6 +147,37 @@ const UserSettings = () => {
     setTimeout(() => {
       setUploadMsg('');
     }, 2000);
+  };
+
+  // Notification toggle handlers
+  const togglePushNotifications = () => {
+    const newValue = !pushNotifications;
+    setPushNotifications(newValue);
+    localStorage.setItem('push_notifications', String(newValue));
+  };
+
+  const toggleEmailNotifications = () => {
+    const newValue = !emailNotifications;
+    setEmailNotifications(newValue);
+    localStorage.setItem('email_notifications', String(newValue));
+  };
+
+  const toggleSmsNotifications = () => {
+    const newValue = !smsNotifications;
+    setSmsNotifications(newValue);
+    localStorage.setItem('sms_notifications', String(newValue));
+  };
+
+  const toggleInAppNotifications = () => {
+    const newValue = !inAppNotifications;
+    setInAppNotifications(newValue);
+    localStorage.setItem('in_app_notifications', String(newValue));
+  };
+
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPhoneNumber(value);
+    localStorage.setItem('notification_phone_number', value);
   };
 
   const handleResetPassword = () => {
@@ -259,6 +307,7 @@ const UserSettings = () => {
     }
   });
   const [newUsername, setNewUsername] = useState('');
+  const [usernamePassword, setUsernamePassword] = useState('');
   const [updateMsg, setUpdateMsg] = useState('');
   const [showUpdatedBox, setShowUpdatedBox] = useState(false);
   const [showEmailBox, setShowEmailBox] = useState(false);
@@ -360,48 +409,79 @@ const UserSettings = () => {
       setUpdateMsg('Username cannot be empty.');
       return;
     }
+    if (!usernamePassword.trim()) {
+      setUpdateMsg('Password is required to change username.');
+      return;
+    }
     setShowUsernameConfirm(true);
   };
 
   const confirmUsernameChange = async () => {
-    const user_id = localStorage.getItem('user_id')
+    const userIdStr = localStorage.getItem('user_id');
+    if (!userIdStr) {
+      setUpdateMsg('User not logged in.');
+      setShowUsernameConfirm(false);
+      return;
+    }
+    
+    const user_id = JSON.parse(userIdStr);
+    
     try {
-      // Call backend to update username
-  const response = await fetch(`/api/users/${user_id}`, {
-        method: 'PATCH',
+      // Call new backend endpoint to update username with password verification
+      const response = await fetch('/api/users/change-username', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: newUsername }),
+        body: JSON.stringify({ 
+          user_id,
+          currentPassword: usernamePassword,
+          newUsername: newUsername.trim()
+        }),
         credentials: 'include',
       });
+      
+      const data = await response.json();
+      
       if (response.ok) {
-        setUsername(newUsername);
+        // Completely replace old username with new one
+        setUsername(data.newUsername);
+        
         // Update localStorage mockUser
         const user = localStorage.getItem('mockUser');
         if (user) {
           try {
             const userObj = JSON.parse(user);
-            userObj.username = newUsername;
+            userObj.username = data.newUsername;
             localStorage.setItem('mockUser', JSON.stringify(userObj));
           } catch {}
         }
+        
         const newCount = changeCount + 1;
         setChangeCount(newCount);
         localStorage.setItem('usernameChangeCount', newCount.toString());
-        setUpdateMsg('Username updated successfully!');
+        setUpdateMsg('Username permanently updated! Old username can no longer be used.');
+        setUsernamePassword(''); // Clear password field
+      } else if (response.status === 401) {
+        if (data.message && data.message.includes('already taken')) {
+          setUpdateMsg('Username is already taken. Please choose another.');
+        } else {
+          setUpdateMsg('Incorrect password.');
+        }
       } else {
-        setUpdateMsg('Failed to update username.');
+        setUpdateMsg(data.message || 'Failed to update username.');
       }
     } catch (err) {
-      setUpdateMsg('Error updating username.');
+      console.error('Error updating username:', err);
+      setUpdateMsg('Network error: unable to reach the server.');
     }
     setShowUpdatedBox(true);
     setNewUsername('');
     setShowUsernameConfirm(false);
-    setTimeout(() => setUpdateMsg(''), 2000);
+    setTimeout(() => setUpdateMsg(''), 3000);
   };
 
   const cancelUsernameChange = () => {
     setShowUsernameConfirm(false);
+    setUsernamePassword('');
   };
   // derive a display username from state or localStorage as a fallback
   const displayedUsername = React.useMemo(() => {
@@ -458,11 +538,190 @@ const UserSettings = () => {
             Notification Preferences
           </button>
           {openTab === 'notifications' && (
-            <div style={{ width: '85%', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px' }}>
-              <button style={linkStyle}>Push Notifications</button>
-              <button style={linkStyle}>Email Notifications</button>
-              <button style={linkStyle}>SMS Notifications</button>
-              <button style={linkStyle}>In-App Notifications</button>
+            <div style={{ width: '85%', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '8px', padding: '12px', background: 'rgba(255,255,255,0.7)', borderRadius: '8px' }}>
+              
+              {/* Push Notifications */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
+                <span style={{ fontWeight: 600, fontSize: '1rem' }}>Push Notifications</span>
+                <button
+                  onClick={togglePushNotifications}
+                  style={{
+                    width: '60px',
+                    height: '30px',
+                    borderRadius: '15px',
+                    border: 'none',
+                    background: pushNotifications ? '#4CAF50' : '#ccc',
+                    position: 'relative',
+                    cursor: 'pointer',
+                    transition: 'background 0.3s',
+                  }}
+                >
+                  <div style={{
+                    width: '26px',
+                    height: '26px',
+                    borderRadius: '50%',
+                    background: 'white',
+                    position: 'absolute',
+                    top: '2px',
+                    left: pushNotifications ? '32px' : '2px',
+                    transition: 'left 0.3s',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                  }} />
+                </button>
+              </div>
+
+              {/* Email Notifications */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
+                <span style={{ fontWeight: 600, fontSize: '1rem' }}>Email Notifications</span>
+                <button
+                  onClick={toggleEmailNotifications}
+                  style={{
+                    width: '60px',
+                    height: '30px',
+                    borderRadius: '15px',
+                    border: 'none',
+                    background: emailNotifications ? '#4CAF50' : '#ccc',
+                    position: 'relative',
+                    cursor: 'pointer',
+                    transition: 'background 0.3s',
+                  }}
+                >
+                  <div style={{
+                    width: '26px',
+                    height: '26px',
+                    borderRadius: '50%',
+                    background: 'white',
+                    position: 'absolute',
+                    top: '2px',
+                    left: emailNotifications ? '32px' : '2px',
+                    transition: 'left 0.3s',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                  }} />
+                </button>
+              </div>
+
+              {/* SMS Notifications */}
+              <div style={{ padding: '12px', borderBottom: '1px solid rgba(0,0,0,0.1)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <span style={{ fontWeight: 600, fontSize: '1rem' }}>SMS Notifications</span>
+                  <button
+                    onClick={toggleSmsNotifications}
+                    style={{
+                      width: '60px',
+                      height: '30px',
+                      borderRadius: '15px',
+                      border: 'none',
+                      background: smsNotifications ? '#4CAF50' : '#ccc',
+                      position: 'relative',
+                      cursor: 'pointer',
+                      transition: 'background 0.3s',
+                    }}
+                  >
+                    <div style={{
+                      width: '26px',
+                      height: '26px',
+                      borderRadius: '50%',
+                      background: 'white',
+                      position: 'absolute',
+                      top: '2px',
+                      left: smsNotifications ? '32px' : '2px',
+                      transition: 'left 0.3s',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                    }} />
+                  </button>
+                </div>
+                {smsNotifications && (
+                  <div style={{ marginTop: '8px' }}>
+                    {phoneNumber ? (
+                      <div>
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '10px',
+                          background: '#e8f5e9',
+                          borderRadius: '6px',
+                          color: '#2e7d32',
+                          fontSize: '1rem',
+                          fontWeight: 500,
+                        }}>
+                          <span>Number Accepted ✓</span>
+                          <span style={{ marginLeft: 'auto', color: '#666' }}>({phoneNumber})</span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setPhoneNumber('');
+                            localStorage.removeItem('phoneNumber');
+                          }}
+                          style={{
+                            marginTop: '6px',
+                            fontSize: '0.75rem',
+                            color: '#d32f2f',
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            textDecoration: 'underline',
+                            padding: 0,
+                          }}
+                        >
+                          Change number
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <label style={{ fontSize: '0.9rem', color: '#666', display: 'block', marginBottom: '6px' }}>
+                          Phone Number:
+                        </label>
+                        <input
+                          type="tel"
+                          placeholder="Enter phone number"
+                          value={phoneNumber}
+                          onChange={handlePhoneNumberChange}
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            borderRadius: '6px',
+                            border: '1px solid #ccc',
+                            fontSize: '1rem',
+                            boxSizing: 'border-box',
+                          }}
+                        />
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* In-App Notifications */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px' }}>
+                <span style={{ fontWeight: 600, fontSize: '1rem' }}>In-App Notifications</span>
+                <button
+                  onClick={toggleInAppNotifications}
+                  style={{
+                    width: '60px',
+                    height: '30px',
+                    borderRadius: '15px',
+                    border: 'none',
+                    background: inAppNotifications ? '#4CAF50' : '#ccc',
+                    position: 'relative',
+                    cursor: 'pointer',
+                    transition: 'background 0.3s',
+                  }}
+                >
+                  <div style={{
+                    width: '26px',
+                    height: '26px',
+                    borderRadius: '50%',
+                    background: 'white',
+                    position: 'absolute',
+                    top: '2px',
+                    left: inAppNotifications ? '32px' : '2px',
+                    transition: 'left 0.3s',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                  }} />
+                </button>
+              </div>
+
             </div>
           )}
           <button
@@ -841,6 +1100,32 @@ const UserSettings = () => {
               }}
               disabled={changeCount >= 3}
             />
+            <input
+              type="password"
+              placeholder="Enter your password to confirm"
+              value={usernamePassword}
+              onChange={e => setUsernamePassword(e.target.value)}
+              style={{
+                padding: '16px',
+                borderRadius: '8px',
+                border: '1.5px solid #bbb',
+                width: '80%',
+                fontSize: '1.2rem',
+                marginBottom: '12px',
+              }}
+              disabled={changeCount >= 3}
+            />
+            <div style={{
+              padding: '12px',
+              background: '#fff3e0',
+              borderRadius: '6px',
+              fontSize: '0.85rem',
+              color: '#e65100',
+              width: '80%',
+              marginBottom: '12px',
+            }}>
+              <strong>⚠️ Important:</strong> Your old username will be <strong>permanently replaced</strong> and can no longer be used to log in.
+            </div>
             <button style={{
               ...linkStyle,
               width: '80%',
@@ -880,6 +1165,9 @@ const UserSettings = () => {
                 }}>
                   <div style={{fontSize: '1.2rem', color: '#1976d2', fontWeight: 700, marginBottom: '18px'}}>
                     Are you sure you want to change your username to <span style={{textDecoration: 'underline'}}>{newUsername}</span>?
+                  </div>
+                  <div style={{fontSize: '0.9rem', color: '#d32f2f', marginBottom: '18px', fontWeight: 500}}>
+                    Your old username will be permanently removed and can no longer be used to log in.
                   </div>
                   <button onClick={confirmUsernameChange} style={{marginRight: '18px', padding: '10px 24px', background: '#1976d2', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 700, cursor: 'pointer'}}>Yes, Change</button>
                   <button onClick={cancelUsernameChange} style={{padding: '10px 24px', background: '#eee', color: '#222', border: 'none', borderRadius: '6px', fontWeight: 500, cursor: 'pointer'}}>Cancel</button>

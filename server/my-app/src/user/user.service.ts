@@ -5,6 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { LoginUserDto } from './dto/login-user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { ChangeUsernameDto } from './dto/change-username.dto';
 
 @Injectable()
 export class UserService {
@@ -71,6 +73,67 @@ async login(loginUserDto: LoginUserDto): Promise<Partial<User>> {
     const { password: _pw, ...safeUser } = user as any;
     console.log('Login successful:', safeUser);
     return safeUser;
+}
+
+async changePassword(changePasswordDto: ChangePasswordDto): Promise<{ message: string }> {
+    const { user_id, currentPassword, newPassword } = changePasswordDto;
+
+    console.log('Password change attempt for user:', user_id);
+
+    // Find the user
+    const user = await this.usersRepository.findOneBy({ user_id });
+
+    if (!user) {
+        console.warn('User not found for password change');
+        throw new NotFoundException('User not found');
+    }
+
+    // Verify current password
+    if (user.password !== currentPassword) {
+        console.warn('Current password incorrect');
+        throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    // Update to new password (completely replacing the old one)
+    await this.usersRepository.update(user_id, { password: newPassword });
+
+    console.log('Password successfully changed for user:', user_id);
+    
+    return { message: 'Password successfully changed' };
+}
+
+async changeUsername(changeUsernameDto: ChangeUsernameDto): Promise<{ message: string; newUsername: string }> {
+    const { user_id, currentPassword, newUsername } = changeUsernameDto;
+
+    console.log('Username change attempt for user:', user_id);
+
+    // Find the user
+    const user = await this.usersRepository.findOneBy({ user_id });
+
+    if (!user) {
+        console.warn('User not found for username change');
+        throw new NotFoundException('User not found');
+    }
+
+    // Verify password for security
+    if (user.password !== currentPassword) {
+        console.warn('Password incorrect for username change');
+        throw new UnauthorizedException('Password is incorrect');
+    }
+
+    // Check if new username is already taken
+    const existingUser = await this.usersRepository.findOneBy({ username: newUsername });
+    if (existingUser && existingUser.user_id !== user_id) {
+        console.warn('Username already taken:', newUsername);
+        throw new UnauthorizedException('Username is already taken');
+    }
+
+    // Update to new username (completely replacing the old one)
+    await this.usersRepository.update(user_id, { username: newUsername });
+
+    console.log('Username successfully changed for user:', user_id, 'to:', newUsername);
+    
+    return { message: 'Username successfully changed', newUsername };
 }
 
 }
