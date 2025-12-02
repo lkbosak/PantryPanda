@@ -445,29 +445,6 @@ const UserSettings = () => {
               color: '#222',
               fontSize: '1.1rem',
               fontWeight: 500,
-              border: '1px solid #FF8C42',
-              borderRadius: '8px',
-              background: 'rgba(255,255,255,0.95)',
-              textAlign: 'center',
-              cursor: 'pointer',
-              boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-              transition: 'background 0.2s',
-            }}
-            onClick={() => {
-              setShowProfilePicBox(true);
-              setShowResetPasswordBox(false);
-            }}
-          >
-            📷 Change Profile Picture
-          </button>
-          <button
-            style={{
-              width: '85%',
-              margin: '18px auto',
-              padding: '18px 0',
-              color: '#222',
-              fontSize: '1.1rem',
-              fontWeight: 500,
               border: '1px solid #1976d2',
               borderRadius: '8px',
               background: 'rgba(255,255,255,0.95)',
@@ -512,7 +489,7 @@ const UserSettings = () => {
             <div style={{ width: '85%', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px', position: 'relative' }}>
               <button style={linkStyle} onClick={() => { setShowUpdatedBox(!showUpdatedBox); setShowEmailBox(false); }}>Update Username</button>
               <button style={linkStyle} onClick={() => { setShowEmailBox(!showEmailBox); setShowUpdatedBox(false); }}>Update Email</button>
-              <button style={linkStyle}>Change Profile Picture</button>
+              <button style={linkStyle} onClick={() => { setShowProfilePicBox(true); setShowResetPasswordBox(false); setShowUpdatedBox(false); setShowEmailBox(false); }}>📷 Change Profile Picture</button>
               <button style={linkStyle} onClick={() => { setShowResetPasswordBox(true); setShowUpdatedBox(false); setShowEmailBox(false); }}>Reset Password</button>
       {/* Reset Password Modal */}
       {showResetPasswordBox && (
