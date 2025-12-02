@@ -9,7 +9,6 @@ const GroceryList: React.FC = () => {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [refreshKey, setRefreshKey] = useState(0);
-	const navigate = useNavigate();
 
 	useEffect(() => {
 		const load = async () => {
