@@ -69,6 +69,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 if (onLogin) onLogin();
                 // Store user info or token if returned by backend
                 localStorage.setItem('user_id', JSON.stringify(data.user_id));
+                // Store complete user data for profile/settings use
+                localStorage.setItem('user_data', JSON.stringify(data));
                 navigate('/pantry');
             } else if (response.ok && !data) {
                 // 200 with empty/null body

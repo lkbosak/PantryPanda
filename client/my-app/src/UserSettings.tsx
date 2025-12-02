@@ -298,14 +298,7 @@ const UserSettings = () => {
   const [openTab, setOpenTab] = useState<'profile' | 'notifications' | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [redirect, setRedirect] = useState(false);
-  const [username, setUsername] = useState(() => {
-    const user = localStorage.getItem('mockUser');
-    try {
-      return user ? JSON.parse(user).username || '' : '';
-    } catch {
-      return '';
-    }
-  });
+  const [username, setUsername] = useState('');
   const [newUsername, setNewUsername] = useState('');
   const [usernamePassword, setUsernamePassword] = useState('');
   const [updateMsg, setUpdateMsg] = useState('');
@@ -316,6 +309,22 @@ const UserSettings = () => {
     const count = localStorage.getItem('usernameChangeCount');
     return count ? parseInt(count, 10) : 0;
   });
+
+  // Load username from user_data on mount
+  React.useEffect(() => {
+    const userData = localStorage.getItem('user_data');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        if (user.username) {
+          setUsername(user.username);
+        }
+      } catch (err) {
+        console.error('Error parsing user data:', err);
+      }
+    }
+  }, []);
+
   React.useEffect(() => {
     if (redirect) {
       window.location.replace('/');
@@ -445,11 +454,21 @@ const UserSettings = () => {
         // Completely replace old username with new one
         setUsername(data.newUsername);
         
-        // Update localStorage mockUser
-        const user = localStorage.getItem('mockUser');
-        if (user) {
+        // Update localStorage user_data
+        const userData = localStorage.getItem('user_data');
+        if (userData) {
           try {
-            const userObj = JSON.parse(user);
+            const userObj = JSON.parse(userData);
+            userObj.username = data.newUsername;
+            localStorage.setItem('user_data', JSON.stringify(userObj));
+          } catch {}
+        }
+
+        // Also update mockUser if it exists (for backward compatibility)
+        const mockUser = localStorage.getItem('mockUser');
+        if (mockUser) {
+          try {
+            const userObj = JSON.parse(mockUser);
             userObj.username = data.newUsername;
             localStorage.setItem('mockUser', JSON.stringify(userObj));
           } catch {}
@@ -486,6 +505,17 @@ const UserSettings = () => {
   // derive a display username from state or localStorage as a fallback
   const displayedUsername = React.useMemo(() => {
     if (username && username.trim()) return username;
+    
+    // Try user_data first (primary source)
+    const userData = localStorage.getItem('user_data');
+    if (userData) {
+      try {
+        const u = JSON.parse(userData);
+        if (u.username) return u.username;
+      } catch {}
+    }
+    
+    // Fallback to mockUser or user
     const userRaw = localStorage.getItem('mockUser') || localStorage.getItem('user');
     if (userRaw) {
       try {
