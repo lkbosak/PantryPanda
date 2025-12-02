@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const sidebarStyle: React.CSSProperties = {
   height: 'auto',
@@ -59,6 +59,78 @@ const UserSettings = () => {
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [resetPasswordMsg, setResetPasswordMsg] = useState('');
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+
+  // Profile picture state
+  const [showProfilePicBox, setShowProfilePicBox] = useState(false);
+  const [profilePic, setProfilePic] = useState<string>('/default-profile.webp');
+  const [isDragging, setIsDragging] = useState(false);
+  const [uploadMsg, setUploadMsg] = useState('');
+
+  // Load profile picture on mount
+  useEffect(() => {
+    const savedProfilePic = localStorage.getItem('profile_picture');
+    if (savedProfilePic) {
+      setProfilePic(savedProfilePic);
+    }
+  }, []);
+
+  // Profile picture handlers
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processImageFile(file);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processImageFile(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const processImageFile = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      setUploadMsg('Please upload an image file');
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      setProfilePic(result);
+      localStorage.setItem('profile_picture', result);
+      setUploadMsg('Profile picture updated successfully!');
+      // Trigger a custom event so NavBar updates
+      window.dispatchEvent(new Event('profile-picture-changed'));
+      setTimeout(() => {
+        setUploadMsg('');
+        setShowProfilePicBox(false);
+      }, 2000);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeProfilePicture = () => {
+    setProfilePic('/default-profile.webp');
+    localStorage.setItem('profile_picture', '/default-profile.webp');
+    setUploadMsg('Profile picture removed');
+    window.dispatchEvent(new Event('profile-picture-changed'));
+    setTimeout(() => {
+      setUploadMsg('');
+    }, 2000);
+  };
 
   const handleResetPassword = () => {
     if (!currentPassword || !newPassword || !confirmNewPassword) {
@@ -373,6 +445,29 @@ const UserSettings = () => {
               color: '#222',
               fontSize: '1.1rem',
               fontWeight: 500,
+              border: '1px solid #FF8C42',
+              borderRadius: '8px',
+              background: 'rgba(255,255,255,0.95)',
+              textAlign: 'center',
+              cursor: 'pointer',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+              transition: 'background 0.2s',
+            }}
+            onClick={() => {
+              setShowProfilePicBox(true);
+              setShowResetPasswordBox(false);
+            }}
+          >
+            📷 Change Profile Picture
+          </button>
+          <button
+            style={{
+              width: '85%',
+              margin: '18px auto',
+              padding: '18px 0',
+              color: '#222',
+              fontSize: '1.1rem',
+              fontWeight: 500,
               border: '1px solid #1976d2',
               borderRadius: '8px',
               background: 'rgba(255,255,255,0.95)',
@@ -536,6 +631,152 @@ const UserSettings = () => {
           </div>
         </div>
       )}
+
+      {/* Profile Picture Upload Box */}
+      {showProfilePicBox && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            background: 'rgba(0,0,0,0.04)',
+          }}
+          onClick={e => {
+            if (e.target === e.currentTarget) setShowProfilePicBox(false);
+          }}
+        >
+          <div style={{
+            background: '#fff',
+            borderRadius: '12px',
+            boxShadow: '0 2px 16px rgba(0,0,0,0.10)',
+            padding: '40px',
+            minWidth: '500px',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '18px',
+          }}>
+            <div style={{fontSize: '1.3rem', fontWeight: 700, marginBottom: '12px'}}>Change Profile Picture</div>
+            
+            {/* Current Profile Picture Preview */}
+            <div style={{
+              width: '150px',
+              height: '150px',
+              borderRadius: '50%',
+              overflow: 'hidden',
+              border: '3px solid #FF8C42',
+              marginBottom: '12px',
+            }}>
+              <img 
+                src={profilePic} 
+                alt="Profile Preview" 
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                }}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/default-profile.webp';
+                }}
+              />
+            </div>
+
+            {/* Drag and Drop Zone */}
+            <div
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              style={{
+                width: '80%',
+                padding: '40px',
+                border: isDragging ? '3px dashed #FF8C42' : '2px dashed #bbb',
+                borderRadius: '12px',
+                background: isDragging ? 'rgba(255,140,66,0.1)' : 'rgba(240,240,240,0.5)',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+              }}
+            >
+              <div style={{fontSize: '1.1rem', fontWeight: 600, marginBottom: '12px', color: '#666'}}>
+                Drag & Drop your image here
+              </div>
+              <div style={{fontSize: '0.9rem', color: '#999', marginBottom: '16px'}}>
+                or
+              </div>
+              <label htmlFor="profile-upload" style={{
+                padding: '12px 24px',
+                background: '#FF8C42',
+                color: 'white',
+                borderRadius: '8px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'inline-block',
+                transition: 'background 0.2s',
+              }}>
+                Choose File
+              </label>
+              <input
+                id="profile-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                style={{ display: 'none' }}
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{display: 'flex', gap: '12px', marginTop: '12px'}}>
+              <button 
+                onClick={removeProfilePicture}
+                style={{
+                  padding: '12px 24px',
+                  background: '#d32f2f',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'background 0.2s',
+                }}
+              >
+                Remove Picture
+              </button>
+              <button 
+                onClick={() => setShowProfilePicBox(false)}
+                style={{
+                  padding: '12px 24px',
+                  background: '#eee',
+                  color: '#222',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                Close
+              </button>
+            </div>
+
+            {uploadMsg && (
+              <div style={{
+                color: uploadMsg.includes('success') || uploadMsg.includes('removed') ? '#1976d2' : '#d32f2f',
+                fontWeight: 600,
+                marginTop: '12px',
+                fontSize: '1.1rem',
+              }}>
+                {uploadMsg}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
             </div>
           )}
         </div>

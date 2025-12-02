@@ -7,6 +7,29 @@ const NavBar: React.FC<{ isLoggedIn: boolean; onLogout: () => void }> = ({
   isLoggedIn,
   onLogout,
 }) => {
+  const [profilePic, setProfilePic] = useState<string>('/default-profile.webp');
+
+  useEffect(() => {
+    // Load profile picture from localStorage
+    const savedProfilePic = localStorage.getItem('profile_picture');
+    if (savedProfilePic) {
+      setProfilePic(savedProfilePic);
+    }
+
+    // Listen for profile picture changes
+    const handleProfilePicChange = () => {
+      const updated = localStorage.getItem('profile_picture');
+      if (updated) {
+        setProfilePic(updated);
+      }
+    };
+
+    window.addEventListener('profile-picture-changed', handleProfilePicChange);
+    return () => {
+      window.removeEventListener('profile-picture-changed', handleProfilePicChange);
+    };
+  }, []);
+
   return (
     <nav
       style={{
@@ -121,28 +144,48 @@ const NavBar: React.FC<{ isLoggedIn: boolean; onLogout: () => void }> = ({
         )}
       </div>
       {isLoggedIn ? (
-        <button
-          onClick={onLogout}
-          style={{
-            background: "#ff7eb3",
-            color: "#fff",
-            border: "none",
-            borderRadius: "4px",
-            padding: "8px 12px",
-            cursor: "pointer",
-            fontWeight: "bold",
-            transition: "background 0.3s",
-            fontSize: '1rem'
-          }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.background = "#ff4d6e92")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.background = "#ff7eb3")
-          }
-        >
-          Logout
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <img 
+            src={profilePic} 
+            alt="Profile" 
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              objectFit: 'cover',
+              border: '2px solid #fff',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+              cursor: 'pointer'
+            }}
+            onClick={() => window.location.href = '/settings'}
+            onError={(e) => {
+              // Fallback to default if image fails to load
+              (e.target as HTMLImageElement).src = '/default-profile.webp';
+            }}
+          />
+          <button
+            onClick={onLogout}
+            style={{
+              background: "#ff7eb3",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              padding: "8px 12px",
+              cursor: "pointer",
+              fontWeight: "bold",
+              transition: "background 0.3s",
+              fontSize: '1rem'
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.background = "#ff4d6e92")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.background = "#ff7eb3")
+            }
+          >
+            Logout
+          </button>
+        </div>
       ) : (
         <div style={{ display: "flex", gap: "20px" }}>
           <Link
