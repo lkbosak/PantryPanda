@@ -467,14 +467,10 @@ const UserSettings = () => {
     
     try {
       // Call new backend endpoint to update username with password verification
-      const response = await fetch('/api/users/change-username', {
-        method: 'POST',
+      const response = await fetch(`/api/users/${user_id}`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          user_id,
-          currentPassword: usernamePassword,
-          newUsername: newUsername.trim()
-        }),
+        body: JSON.stringify({ username: newUsername.trim() }),
         credentials: 'include',
       });
       
@@ -489,7 +485,7 @@ const UserSettings = () => {
         if (userData) {
           try {
             const userObj = JSON.parse(userData);
-            userObj.username = data.newUsername;
+            userObj.username = newUsername;
             localStorage.setItem('user_data', JSON.stringify(userObj));
           } catch {}
         }

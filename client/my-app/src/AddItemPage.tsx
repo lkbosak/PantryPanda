@@ -35,7 +35,7 @@ const AddItemPage: React.FC = () => {
                     product_name: item.product_name,
                     product_id: data.product_id,
                     quantity: Number(item.quantity),
-                    unit: 'gallon', 
+                    unit: '', 
                     expiration_date: item.expirationDate ? (item.expirationDate) : null,
                     date_added: new Date(),
                     location: item.category, 
