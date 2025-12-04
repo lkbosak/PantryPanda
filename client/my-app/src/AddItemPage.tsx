@@ -9,6 +9,7 @@ import { warn } from 'console';
 
 const AddItemPage: React.FC = () => {
   const navigate = useNavigate();
+  const { addItem } = usePantry();
     const userIdstr = localStorage.getItem('user_id');
     const user_id = Number(userIdstr);
     console.log('user id ' + user_id)
@@ -59,6 +60,14 @@ const AddItemPage: React.FC = () => {
             }
             try{
                 if (response.ok && data) {
+                    // Trigger notification using PantryContext
+                    addItem({
+                        name: item.product_name,
+                        quantity: item.quantity,
+                        category: item.category,
+                        barcode: item.upc_barcode
+                    });
+                    
                     alert('Product added');
                     // Store user info or token if returned by backend
                     localStorage.setItem('Product', JSON.stringify(data));

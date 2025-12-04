@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
+import { usePantry } from './PantryContext';
 interface PantryItem {
   inventory_id: number;
   quantity: number;
@@ -15,6 +16,7 @@ interface PantryItem {
 }
 const Freezer: React.FC = () => {
   const navigate = useNavigate();
+  const { removeItem } = usePantry();
   const [freezerItems, setPantryItems] = useState<PantryItem[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [deleting, setDeleting] = useState(false);
@@ -109,9 +111,14 @@ const Freezer: React.FC = () => {
                 
                 // Delete items (selected or qty=0)
                 itemsToDelete.forEach(id => {
+                  const itemToDelete = freezerItems.find(item => item.inventory_id === id);
                   promises.push(
                     fetch(`/api/user-inventory/${id}`, { method: 'DELETE' }).then(res => {
                       if (!res.ok) throw new Error(`Failed to delete ${id}`);
+                      // Trigger notification for deleted item
+                      if (itemToDelete?.product) {
+                        removeItem({ name: itemToDelete.product.product_name });
+                      }
                     })
                   );
                 });

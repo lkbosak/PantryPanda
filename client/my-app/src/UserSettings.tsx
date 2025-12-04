@@ -82,6 +82,8 @@ const UserSettings = () => {
   const [phoneNumber, setPhoneNumber] = useState(() => {
     return localStorage.getItem('notification_phone_number') || '';
   });
+  const [phoneNumberInput, setPhoneNumberInput] = useState('');
+  const [phoneNumberError, setPhoneNumberError] = useState('');
 
   // Load profile picture on mount
   useEffect(() => {
@@ -174,10 +176,46 @@ const UserSettings = () => {
     localStorage.setItem('in_app_notifications', String(newValue));
   };
 
+  const validatePhoneNumber = (value: string): boolean => {
+    // Remove all non-digit characters
+    const digitsOnly = value.replace(/\D/g, '');
+    
+    // Check if it has exactly 10 digits
+    if (digitsOnly.length !== 10) {
+      return false;
+    }
+    
+    // Valid formats: ###-###-####, ########## or any 10 digits
+    const format1 = /^\d{3}-\d{3}-\d{4}$/; // ###-###-####
+    const format2 = /^\d{10}$/; // ##########
+    
+    return format1.test(value) || format2.test(value) || digitsOnly.length === 10;
+  };
+
   const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setPhoneNumber(value);
-    localStorage.setItem('notification_phone_number', value);
+    setPhoneNumberInput(value);
+    setPhoneNumberError(''); // Clear error on input
+  };
+
+  const handlePhoneNumberKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      const value = phoneNumberInput.trim();
+      
+      if (!value) {
+        setPhoneNumberError('');
+        return;
+      }
+      
+      if (validatePhoneNumber(value)) {
+        setPhoneNumber(value);
+        localStorage.setItem('notification_phone_number', value);
+        setPhoneNumberInput('');
+        setPhoneNumberError('');
+      } else {
+        setPhoneNumberError('Number Invalid');
+      }
+    }
   };
 
   const handleResetPassword = () => {
@@ -730,18 +768,29 @@ const UserSettings = () => {
                         </label>
                         <input
                           type="tel"
-                          placeholder="Enter phone number"
-                          value={phoneNumber}
+                          placeholder="Enter phone number (Press Enter)"
+                          value={phoneNumberInput}
                           onChange={handlePhoneNumberChange}
+                          onKeyPress={handlePhoneNumberKeyPress}
                           style={{
                             width: '100%',
                             padding: '10px',
                             borderRadius: '6px',
-                            border: '1px solid #ccc',
+                            border: phoneNumberError ? '2px solid #d32f2f' : '1px solid #ccc',
                             fontSize: '1rem',
                             boxSizing: 'border-box',
                           }}
                         />
+                        {phoneNumberError && (
+                          <div style={{
+                            marginTop: '6px',
+                            fontSize: '0.85rem',
+                            color: '#d32f2f',
+                            fontWeight: 500,
+                          }}>
+                            {phoneNumberError}
+                          </div>
+                        )}
                       </>
                     )}
                   </div>
